@@ -1,0 +1,82 @@
+aid: betgenius
+name: BetGenius
+description: >-
+  BetGenius is the sportsbook-operator brand of Genius Sports, a London- and
+  New York-listed sports data, technology, and commercial-services group.
+  Founded in 2000 and operating as a Genius Sports business unit since the
+  2015 corporate consolidation, BetGenius provides licensed sportsbooks with
+  an end-to-end B2B platform spanning official data and odds feeds, fully
+  managed trading and risk management (Genius Trading Services), low-latency
+  live video and interactive in-play streaming (BetVision and Genius Live
+  Player), BetBuilder same-game-parlay pricing, ScoreCentre widgets,
+  acquisition and retention marketing (FANHub, media buying, dynamic creative
+  optimisation), and back-office sportsbook platform services (used by
+  operators such as OPAP, 888, Betway, and Hard Rock Bet). Genius Sports
+  sources official data from 400+ league partners — including the NFL, English
+  Premier League, Serie A, EuroLeague, and PGA Tour — and serves 300+ licensed
+  sportsbooks across regulated markets worldwide. BetGenius itself does not
+  expose a self-service developer portal; its APIs (Booking API, Fixtures API
+  v2, Matching API v2, Warehouse REST/Streaming/Publish APIs, LiveStats
+  In-Arena and Licensing APIs, BetVision and Live Player integration SDKs)
+  are documented at developer.geniussports.com and delivered to contracted
+  operators via UAT and production environments using API-key authentication.
+type: Index
+position: Provider
+access: 3rd-Party
+image: https://kinlane-productions.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+tags:
+  - Sportsbook
+  - Sports Betting
+  - Sports Data
+  - Odds Feeds
+  - Trading Services
+  - Risk Management
+  - Live Streaming
+  - In-Play Betting
+  - BetBuilder
+  - Player Engagement
+  - Marketing Technology
+  - Gambling
+url: https://raw.githubusercontent.com/api-evangelist/betgenius/refs/heads/main/apis.yml
+created: '2026-05-25'
+modified: '2026-05-25'
+specificationVersion: '0.20'
+apis: []
+common:
+  - type: Website
+    url: https://www.betgenius.com
+  - type: ParentCompany
+    url: https://www.geniussports.com
+  - type: Sportsbooks
+    url: https://www.geniussports.com/sportsbooks/
+  - type: DataOddsAPIs
+    url: https://www.geniussports.com/bet/odds-feeds-api/
+  - type: GeniusTradingServices
+    url: https://www.geniussports.com/bet/genius-trading-services/
+  - type: BetVision
+    url: https://www.geniussports.com/bet/bet-vision/
+  - type: FANHub
+    url: https://www.geniussports.com/engage/fanhub/
+  - type: MediaBuying
+    url: https://www.geniussports.com/engage/fanhub/media-buying/
+  - type: DeveloperCentre
+    url: https://developer.geniussports.com/
+  - type: IntegrationDocs
+    url: https://geniussports.atlassian.net/wiki/spaces/BID
+  - type: BetstreamIntegrationGuide
+    url: https://dap-docs.betstream.betgenius.com/
+  - type: BookingSystemSwagger
+    url: https://dataservices.betgenius.com/BookingSystem/swagger/ui/index
+  - type: Investors
+    url: https://investors.geniussports.com
+  - type: News
+    url: https://news.geniussports.com
+  - type: ContactSales
+    url: https://www.geniussports.com/contact-sales/sportsbook-contact/
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/genius-sports/
+  - type: Twitter
+    url: https://twitter.com/GeniusSports
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
