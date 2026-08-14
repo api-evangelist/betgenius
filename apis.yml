@@ -50,14 +50,94 @@ tags:
   - Gambling
 url: https://raw.githubusercontent.com/api-evangelist/betgenius/refs/heads/main/apis.yml
 created: '2026-05-25'
-modified: '2026-05-25'
+modified: '2026-08-13'
 specificationVersion: '0.20'
-apis: []
+apis:
+  - aid: betgenius:betgenius-booking-api-v2
+    name: BetGenius Booking API V2
+    description: >-
+      The current Booking API. Three operations that let a contracted sportsbook list the upcoming
+      fixtures it can book, book a fixture to turn on its data feeds, and un-book it again. Served
+      from BetGenius's own host with HTTP Basic credentials issued by the Genius Sports Support
+      team. Reads are governed by a ten-minute cooldown per sport and a maximum seven-day fixture
+      window; writes carry no idempotency contract.
+    humanURL: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+    baseURL: https://dataservices.betgenius.com/BookingSystem
+    tags:
+      - Booking
+      - Fixtures
+      - Sportsbook
+      - Sports Data
+    properties:
+      - type: OpenAPI
+        url: openapi/betgenius-booking-v2-openapi.yml
+      - type: Overlay
+        url: overlays/betgenius-booking-v2-overlay.yaml
+      - type: Documentation
+        url: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+      - type: SwaggerUI
+        url: https://dataservices.betgenius.com/BookingSystem/swagger/ui/index
+      - type: AgentSkill
+        url: skills/betgenius-book-fixtures.md
+  - aid: betgenius:betgenius-booking-api-v1
+    name: BetGenius Booking API V1
+    description: >-
+      The pre-v2 Booking API, still served alongside V2 from the same Swashbuckle discovery list.
+      The same three operations on the /api/booking path; the only contract difference from V2 is
+      that its Feed object has no Metadata map. Retained rather than sunset — there is no published
+      deprecation policy and no Sunset header.
+    humanURL: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+    baseURL: https://dataservices.betgenius.com/BookingSystem
+    tags:
+      - Booking
+      - Fixtures
+      - Sportsbook
+    properties:
+      - type: OpenAPI
+        url: openapi/betgenius-booking-v1-openapi.yml
+      - type: Overlay
+        url: overlays/betgenius-booking-v1-overlay.yaml
+      - type: Documentation
+        url: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+      - type: SwaggerUI
+        url: https://dataservices.betgenius.com/BookingSystem/swagger/ui/index
+  - aid: betgenius:betgenius-video-streaming-api-v3
+    name: BetGenius Video Streaming API v3
+    description: >-
+      The server-side half of BetVision and the Genius Live Player. Lists fixtures with live and
+      VOD streams together with their per-stream entitlement (device, region, DMA, maximum player
+      size), lists supported playback regions, and exchanges a stream and delivery id for an
+      authorised HLS, DASH, SRT or VOD playback URL plus DRM configuration. OAuth2 bearer token
+      plus an issued x-api-key; RFC 7807 problem details on errors. The provider states this API
+      must never be called from end-user browser code.
+    humanURL: https://dap-docs.betstream.betgenius.com/video-player/introduction
+    baseURL: https://api.geniussports.com/Video-v3/PRODPRM
+    tags:
+      - Video
+      - Live Streaming
+      - In-Play Betting
+      - DRM
+      - BetVision
+    properties:
+      - type: OpenAPI
+        url: openapi/betgenius-video-v3-openapi.yml
+      - type: Overlay
+        url: overlays/betgenius-video-v3-overlay.yaml
+      - type: Documentation
+        url: https://dap-docs.betstream.betgenius.com/video-player/web-browser-integration
+      - type: APIReference
+        url: https://explorer.api.geniussports.com/Video/v3/PRODPRM/public/
+      - type: AgentSkill
+        url: skills/betgenius-stream-live-fixture.md
 common:
+  - type: AgenticAccess
+    url: agentic-access/betgenius-agentic-access.yml
+  - type: Authentication
+    url: authentication/betgenius-authentication.yml
   - type: DomainSecurity
     url: security/betgenius-domain-security.yml
   - type: Website
-    url: https://www.betgenius.com
+    url: https://www.geniussports.com/bet/
   - type: ParentCompany
     url: https://www.geniussports.com
   - type: Sportsbooks
@@ -90,6 +170,58 @@ common:
     url: https://www.linkedin.com/company/genius-sports/
   - type: Twitter
     url: https://twitter.com/GeniusSports
+  - type: DeveloperPortal
+    url: https://developer.geniussports.com/
+  - type: Documentation
+    url: https://geniussports.atlassian.net/wiki/spaces/BID
+  - type: APIReference
+    url: https://dataservices.betgenius.com/BookingSystem/swagger/ui/index
+  - type: GettingStarted
+    url: https://dap-docs.betstream.betgenius.com/
+  - type: Support
+    url: https://geniussports.atlassian.net/wiki/spaces/BID/pages/6097764412/Support+User+Guides+and+Info
+  - type: Blog
+    url: https://www.geniussports.com/content-hub/
+  - type: GitHubOrganization
+    url: https://github.com/genius-sports
+  - type: PrivacyPolicy
+    url: https://www.geniussports.com/policies/privacy-policy/
+  - type: StatusPage
+    url: https://status.geniussports.com
+  - type: Lifecycle
+    url: lifecycle/betgenius-lifecycle.yml
+  - type: Conventions
+    url: conventions/betgenius-conventions.yml
+  - type: ErrorCatalog
+    url: errors/betgenius-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/betgenius-rate-limits.yml
+  - type: Plans
+    url: plans/betgenius-plans-pricing.yml
+  - type: OAuthScopes
+    url: scopes/betgenius-scopes.yml
+  - type: Sandbox
+    url: sandbox/betgenius-sandbox.yml
+  - type: Conformance
+    url: conformance/betgenius-conformance.yml
+  - type: DataModel
+    url: data-model/betgenius-data-model.yml
+  - type: Components
+    url: components/betgenius-components.yml
+  - type: Packages
+    url: packages/betgenius-packages.yml
+  - type: Webhooks
+    url: asyncapi/betgenius-event-surface.yml
+  - type: AgentSkill
+    url: skills/_index.yml
+  - type: LLMsTxt
+    url: llms/betgenius-llms.txt
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
+x-enrichment:
+  date: '2026-08-13'
+  status: enriched
+  artifacts_added: 30
+  pass: local-v1
+
