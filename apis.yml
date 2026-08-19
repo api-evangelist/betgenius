@@ -51,7 +51,7 @@ tags:
 url: https://raw.githubusercontent.com/api-evangelist/betgenius/refs/heads/main/apis.yml
 created: '2026-05-25'
 modified: '2026-08-13'
-specificationVersion: '0.20'
+specificationVersion: '0.23'
 apis:
   - aid: betgenius:betgenius-booking-api-v2
     name: BetGenius Booking API V2
