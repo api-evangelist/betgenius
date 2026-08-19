@@ -1,0 +1,74 @@
+generated: '2026-08-13'
+method: searched
+source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+docs:
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/3990454434/Genius+Sports+Live+Sports+Data+Pull+APIs
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/3265364369/API+Explorer+for+Ably+Push+Feeds
+limit_count: 5
+note: >-
+  Limits are published as prose in the BetGenius Integration Documents (Confluence space BID),
+  not as response headers. No RateLimit-*, X-RateLimit-* or Retry-After header is documented for
+  any BetGenius surface, and none was observed — every endpoint requires credentials, so no
+  unauthenticated live observation was possible. The Booking API's limit is unusual and worth
+  reading carefully: it is a per-sport cooldown, not a request budget.
+limits:
+  - api: Booking API
+    scope: per-account, per-sport
+    endpoint: GET /api/v2/booking/Fixtures
+    window: 10 minutes
+    limit: 1 request per sport per 10 minutes
+    burst: null
+    behaviour: >-
+      "GetFixtures has a 10 minute timeout per sport. If the timeout period has not passed when
+      GetFixtures is queried, the response will inform of the remaining time left before a
+      successful query will be processed."
+    exhaustion_status: null
+    headers: []
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+  - api: Booking API
+    scope: per-request
+    endpoint: GET /api/v2/booking/Fixtures
+    window: null
+    limit: maximum 7 days of fixtures per call
+    kind: payload-window
+    behaviour: '"you can only retrieve a maximum of 7 days worth of fixtures with one call."'
+    headers: []
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+  - api: Match State Platform APIs
+    scope: per-api-key
+    window: 1 second
+    limit: 100 requests per second
+    burst: 200 requests
+    quota: 1000000 requests per day
+    behaviour: >-
+      "The following are the rate limits for the Match State APIs: Rate 100 requests per second /
+      Burst 200 requests / Quota 1000000 requests per day". The docs state the issued API Key is
+      what "controls the available quotas, rate limits, and throttling".
+    exhaustion_status: null
+    headers: []
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3990454434/Genius+Sports+Live+Sports+Data+Pull+APIs
+  - api: Match State Platform Schedule API
+    scope: per-request
+    limit: interval between `from` and `to` must be <= 7 days
+    kind: payload-window
+    headers: []
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3990454815/Match+State+Platform+Schedule+API
+  - api: Ably push feeds (GeniusPremium / GeniusPremiumReplay)
+    scope: per-channel
+    window: 1 second
+    limit: max 2 messages per second
+    message_size: up to 800 kB per message
+    kind: publish-rate
+    behaviour: >-
+      Published per-source in the Ably feed catalog. This is a producer-side publish rate on the
+      pub/sub channel, not a consumer request budget.
+    headers: []
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3265364369/API+Explorer+for+Ably+Push+Feeds
+response_headers:
+  documented: []
+  observed: []
+  note: >-
+    No rate-limit response headers are documented on any BetGenius surface. An agent gets no runtime
+    signal — it must model the 10-minute per-sport Booking cooldown and the 100 rps Match State
+    ceiling client-side. This is the single highest-value DX gap on the integration.

@@ -1,0 +1,126 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/ plus the BetGenius Integration Documents (Confluence space BID) and dap-docs.betstream.betgenius.com
+note: >-
+  Assertions below are evidenced against the harvested contracts and the provider's own published
+  documentation. Where a standard is claimed nowhere and evidenced nowhere, it is recorded as
+  `conforms: false` with the reason — an honest negative. No compliance certification (SOC 2, ISO
+  27001, PCI DSS, HIPAA, FedRAMP) could be verified for Genius Sports or BetGenius on any
+  first-party page: /security, /trust, /legal and trust.geniussports.com all miss. No `Compliance`
+  pointer is emitted.
+standards:
+  - id: openapi-2.0
+    conforms: true
+    evidence: >-
+      Booking V1, Booking V2 and Video-v3 are all Swagger 2.0 documents served live from
+      dataservices.betgenius.com and explorer.api.geniussports.com.
+  - id: openapi-3.x
+    conforms: partial
+    evidence: >-
+      The Match State Platform and Statistics APIs publish OpenAPI 3.0.1 / 3.0.4 / 3.1.1 at
+      platform.matchstate.api.geniussports.com/swagger/*/swagger.json and
+      statistics.api.geniussports.com/openapi/v3.json. Those are parent-platform contracts, held
+      under all/genius-sports/; the three contracts in this repo are all 2.0.
+  - id: rfc7807-problem-details
+    conforms: true
+    evidence: >-
+      Video-v3 defines a `Problem` schema (type/title/status/detail/instance) and describes
+      400/401/403/404 as "A base RFC-7807 error response" on all seven operations.
+  - id: rfc9457-problem-details
+    conforms: partial
+    evidence: >-
+      RFC 9457 obsoletes RFC 7807 and is wire-compatible; the spec cites 7807 explicitly. No
+      `errors[]` extension member is used.
+  - id: oauth2
+    conforms: true
+    evidence: >-
+      OAuth2 client_credentials at https://auth.api.geniussports.com/oauth2/token, tokens valid
+      3600s, documented on the Match State Platform APIs Authentication page.
+  - id: oauth2-client-credentials
+    conforms: true
+    evidence: The only grant type documented; there is no user-delegated flow anywhere on the platform.
+  - id: oidc
+    conforms: false
+    evidence: >-
+      No /.well-known/openid-configuration is served on any probed host (all 404/403/unreachable),
+      and no id_token or userinfo endpoint is documented. The issuer is an Amazon Cognito user pool
+      but the OIDC discovery surface is not exposed to integrators.
+  - id: rfc8414-oauth-authorization-server-metadata
+    conforms: false
+    evidence: /.well-known/oauth-authorization-server returns 404 on every host probed.
+  - id: rfc9116-security-txt
+    conforms: false
+    evidence: /.well-known/security.txt returns 404 (or 403 on the S3 docs origin) on every host probed.
+  - id: rfc8594-sunset-header
+    conforms: false
+    evidence: No Sunset or Deprecation header is documented or implemented; no deprecation policy exists.
+  - id: rfc7235-http-authentication
+    conforms: true
+    evidence: The Booking API declares a `basic` securityDefinition (HTTP Basic).
+  - id: idempotency-key
+    conforms: false
+    evidence: No idempotency key header or replay semantics on any surface. See conventions/.
+  - id: rate-limit-headers
+    conforms: false
+    evidence: >-
+      Limits are published as prose only (10-minute per-sport Booking cooldown; 100 rps / 200
+      burst / 1M per day on Match State). No RateLimit-*, X-RateLimit-* or Retry-After header.
+  - id: pagination
+    conforms: partial
+    evidence: >-
+      Video-v3 returns a `FixturesPage` with a `Paging` object; Booking returns bare arrays bounded
+      by a 7-day window with no page controls.
+  - id: hateoas
+    conforms: false
+    evidence: >-
+      Absent from all three contracts in this repo. The parent Fixtures API v2 does use a HATEOAS
+      model wrapper, but that contract is not part of the BetGenius sportsbook surface.
+  - id: asyncapi
+    conforms: false
+    evidence: >-
+      A substantial documented event surface exists (Ably pub/sub channels with versioned
+      contracts, per-source message rates and published JSON Schemas) but no AsyncAPI document is
+      published for any of it. See asyncapi/betgenius-event-surface.yml.
+  - id: json-schema
+    conforms: partial
+    evidence: >-
+      Message JSON Schemas are published for Live Match Statistics and NFL Statistics as Confluence
+      pages rather than as fetchable .json documents at stable URLs.
+  - id: hls
+    conforms: true
+    evidence: HLSDelivery / createHLSStream / createHlsVod operations in Video-v3.
+  - id: mpeg-dash
+    conforms: true
+    evidence: DASHDelivery / createDASHStream operation in Video-v3.
+  - id: srt
+    conforms: true
+    evidence: SRTDelivery / createSRTStream operation in Video-v3 (optional per stream).
+  - id: widevine-drm
+    conforms: true
+    evidence: 'Documented DRM technology — "Chrome, Firefox and Edge web browsers, as well as Android and Chromecast devices."'
+  - id: fairplay-drm
+    conforms: true
+    evidence: 'Documented DRM technology — requires both fairplay and fairplayCertificate values in the response.'
+  - id: hmac-sha256-request-signing
+    conforms: true
+    evidence: >-
+      The Genius Live Player `digest` parameter is "an HMAC-SHA256 hash of the end user's device ID
+      (MAID) and a shared secret".
+  - id: a2a-agent-card
+    conforms: false
+    evidence: /.well-known/agent-card.json and /.well-known/agent.json both miss on every host probed.
+  - id: mcp
+    conforms: false
+    evidence: No MCP server is published by BetGenius or Genius Sports.
+  - id: llms-txt
+    conforms: false
+    evidence: /llms.txt returns 403 on dap-docs and developer.geniussports.com (S3 origins) and 404 on www.geniussports.com.
+regulatory_context:
+  note: >-
+    BetGenius operates in licensed gambling markets and its own restrictions page is explicit about
+    the regulatory perimeter — video is "Limited to Active Bettors currently logged-in to the
+    bookmaker account, and physically located in a state where betting on such account is legal and
+    regulated", with region and DMA enforcement at the edge. That is a real compliance control
+    expressed in the product, but it is a rights/licensing control, not a published information
+    security certification.
+certifications_verified: []

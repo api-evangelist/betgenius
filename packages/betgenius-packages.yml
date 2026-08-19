@@ -1,0 +1,59 @@
+generated: '2026-08-13'
+method: searched
+source: registry searches (npm, PyPI, RubyGems, crates.io, NuGet, Maven Central, pkg.go.dev, Packagist) plus the BetGenius/Genius Sports docs and GitHub organisations
+note: >-
+  BetGenius ships no client libraries. npm returns zero results for geniussports, betgenius,
+  genius-live-player and betvision; PyPI 404s on all three name forms; github.com/betgenius exists
+  with 0 public repositories, and github.com/genius-sports holds only forks of third-party
+  streaming and messaging projects (m3u8-rs, pulsar, gpac, risingwave, rsubs-lib) with no
+  first-party SDK among them. The only client artifact BetGenius actually distributes is the
+  Genius Live Player widget loader, and it is a CDN script tag rather than a registry package.
+  Integrators are expected to hand-roll HTTP clients and, for the Ably push feeds, to use Ably's
+  own third-party SDKs. No `SDKs` pointer is emitted, because there is no SDK.
+packages:
+  - language: javascript
+    registry: cdn
+    name: Genius Live Player widgetLoader
+    official: true
+    url: https://genius-live-player-production.betstream.betgenius.com/widgetLoader
+    uat_url: https://genius-live-player-uat.betstream.betgenius.com/widgetLoader
+    install: '<script src="https://genius-live-player-production.betstream.betgenius.com/widgetLoader?customerId=...&fixtureId=...&deviceId=...&digest=..."></script>'
+    version: null
+    published: null
+    note: >-
+      Served from BetGenius's own CDN host, not from npm/unpkg/jsDelivr, so there is no metadata
+      endpoint to query and no version in the URL — the loader path carries no version segment and
+      no integrity hash, and floats to whatever is currently deployed. That unpinnedness IS the
+      finding: an operator embedding this cannot state which build is running in production, cannot
+      roll back, and cannot pin against an unannounced change. version is null because it was
+      checked and there is nothing to record, not because it was skipped.
+    docs: https://dap-docs.betstream.betgenius.com/video-player/web-browser-integration
+third_party_dependencies:
+  - name: Ably client libraries
+    registries: [npm, NuGet, PyPI, Maven Central, RubyGems, pkg.go.dev]
+    official: false
+    vendor: Ably
+    note: >-
+      The documented way to consume BetGenius live sports data is Ably's own open-source SDKs — the
+      integration guide's worked example is `Install-Package ably.io` in .NET. Genius Sports
+      publishes no wrapper around them. Direct connection without the Ably SDK is also documented.
+    url: https://ably.com/download
+  - name: TheoPlayer
+    official: false
+    note: The BetVision theming documentation defers to the TheoPlayer UI Skinning Guide.
+  - name: Screenfull
+    official: false
+    note: Used inside the player to work around the missing Fullscreen API in Safari on iOS.
+registries_checked:
+  - {registry: npm, result: no first-party package}
+  - {registry: pypi, result: 404 on geniussports, betgenius, genius-sports}
+  - {registry: rubygems, result: no first-party package}
+  - {registry: crates.io, result: no first-party package}
+  - {registry: nuget, result: no first-party package}
+  - {registry: maven-central, result: no first-party package}
+  - {registry: pkg.go.dev, result: no first-party package}
+  - {registry: packagist, result: no first-party package}
+github_organisations:
+  - {org: betgenius, url: 'https://github.com/betgenius', public_repos: 0}
+  - {org: genius-sports, url: 'https://github.com/genius-sports', public_repos: 6, note: forks of m3u8-rs, pulsar, gpac, risingwave, rsubs-lib — no first-party SDK}
+  - {org: geniussports, url: 'https://github.com/geniussports', public_repos: 3, note: 'repos named Frontend/Backend/Mobile with no description; not SDKs'}

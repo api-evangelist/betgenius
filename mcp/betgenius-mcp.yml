@@ -1,0 +1,82 @@
+generated: '2026-08-13'
+method: derived
+status: candidate
+source: openapi/betgenius-booking-v2-openapi.yml, openapi/betgenius-video-v3-openapi.yml
+note: >-
+  BetGenius publishes no MCP server. This is a DERIVED candidate tool list produced from the real
+  operationIds in the two current harvested contracts, so that the agent surface a sportsbook would
+  need is at least described. Nobody ships this — do not treat any endpoint here as callable.
+  A real server would also have to solve the entitlement problem: every operation below is gated by
+  a per-operator licence, and the Video operations additionally by the end viewer's region and DMA.
+  NO `MCPServer` POINTER IS EMITTED IN apis.yml for this file. The pointer asserts that the
+  provider runs an MCP server; `deployment.mode: none` says nobody does. Wiring it would credit
+  BetGenius with an agent surface it has not built.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+server:
+  name: betgenius
+  transport: null
+  url: null
+tools:
+  - name: list_bookable_fixtures
+    description: >-
+      List upcoming fixtures available to book, optionally filtered by sport and a date window.
+      Subject to a 10-minute per-sport cooldown and a maximum 7-day window.
+    source_operation: openapi/betgenius-booking-v2-openapi.yml#BookingV2_Fixtures
+    consequence: read
+  - name: book_fixture
+    description: Book a fixture by Genius Sports fixture id, enabling its data feeds for the operator.
+    source_operation: openapi/betgenius-booking-v2-openapi.yml#BookingV2_Book
+    consequence: write
+    note: Commercially chargeable action. No idempotency key exists; a retry cannot be made safe.
+  - name: unbook_fixture
+    description: Un-book a previously booked fixture.
+    source_operation: openapi/betgenius-booking-v2-openapi.yml#BookingV2_UnBook
+    consequence: write
+    note: >-
+      Destructive in operational terms — un-booking withdraws the live feed a trading desk may be
+      pricing against.
+  - name: list_video_fixtures
+    description: List fixtures with live or VOD streams available, with their permissions and DMA allowlists.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#getFixtures
+    consequence: read
+  - name: get_video_fixture
+    description: Get one video fixture by id, including its live streams, VOD streams and deliveries.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#getFixture
+    consequence: read
+  - name: list_video_regions
+    description: List the supported playback regions (code, name, continent).
+    source_operation: openapi/betgenius-video-v3-openapi.yml#getRegions
+    consequence: read
+  - name: create_hls_stream
+    description: Exchange fixture/stream/delivery ids for an authorised HLS playback URL and token.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#createHLSStream
+    consequence: write
+    note: >-
+      Server-side only. The provider states the Video API "must never be called from end-user
+      browser/client code" — an in-browser agent must not hold these credentials.
+  - name: create_dash_stream
+    description: Exchange fixture/stream/delivery ids for an authorised DASH playback URL and token.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#createDASHStream
+    consequence: write
+  - name: create_srt_stream
+    description: Exchange fixture/stream/delivery ids for an authorised SRT playback URL and token.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#createSRTStream
+    consequence: write
+  - name: create_hls_vod
+    description: Exchange fixture/stream/delivery ids for an authorised HLS video-on-demand URL and token.
+    source_operation: openapi/betgenius-video-v3-openapi.yml#createHlsVod
+    consequence: write
+not_modelled:
+  - >-
+    The Ably push feeds are the majority of what BetGenius actually delivers and they are not
+    request/response, so they do not map onto MCP tools. An MCP server would at best expose the
+    Access Control /liveaccess call that mints an Ably token.
+  - >-
+    The `geniussportsmessagebus` browser events are in-page DOM events with no server endpoint and
+    cannot be modelled as tools at all.

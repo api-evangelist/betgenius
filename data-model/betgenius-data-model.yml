@@ -1,0 +1,112 @@
+generated: '2026-08-13'
+method: derived
+source: openapi/betgenius-video-v3-openapi.yml, openapi/betgenius-booking-v2-openapi.yml, openapi/betgenius-booking-v1-openapi.yml
+enriched_from: https://dap-docs.betstream.betgenius.com/bet-vision/restrictions
+note: >-
+  One entity is the spine of the whole BetGenius integration: the Fixture, keyed by a Genius Sports
+  fixture id. Everything an operator does — booking it, trading it, streaming it, settling bets on
+  it — hangs off that id, and both harvested contracts model it independently with overlapping but
+  non-identical shapes. The second theme is that ENTITLEMENT is modelled as data, not as an error:
+  a live stream carries its own permissions and DMA allowlist inline, so a client can see what it
+  is not allowed to play before it tries.
+entities:
+  - name: Fixture
+    id_field: id / FixtureId
+    id_type: integer (int64 in Video-v3, int32 in Booking)
+    description: A single sporting event. The universal join key across the platform.
+    sources:
+      - openapi/betgenius-video-v3-openapi.yml#/definitions/Fixture
+      - openapi/betgenius-booking-v2-openapi.yml#/definitions/Fixture
+    fields_video: [id, name, phase, bookingStatus, startAt, competitionId, competitionName, sportId, sportName, liveStreams, vodStreams]
+    fields_booking: [FixtureId, Name, Date, CompetitionId, CompetitionName, SportId, CustomerFixtureId, IsBooked, AvailableFeeds, ExternalIds]
+    divergence: >-
+      Video-v3 types competitionId as a STRING "to keep consistency with the type returned by
+      Fixtures API"; Booking types CompetitionId as an int32. Booking exposes booking state as the
+      boolean IsBooked; Video exposes it as the BookingStatus enum. A client integrating both must
+      reconcile these by hand.
+  - name: LiveStream
+    id_field: id
+    id_type: string
+    description: A playable live video stream attached to a fixture, carrying its own entitlement.
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/LiveStream
+  - name: VodStream
+    id_field: id
+    id_type: string
+    description: A video-on-demand stream attached to a fixture. HLS and DASH only — no SRT.
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/VodStream
+  - name: Delivery
+    variants: [HLSDelivery, DASHDelivery, SRTDelivery]
+    id_field: deliveryId
+    description: >-
+      A specific CDN delivery of a stream. Multi-CDN is real: on primary failure the player
+      re-emits player_ready with a different deliveryId, so deliveries are failover units.
+    source: openapi/betgenius-video-v3-openapi.yml
+  - name: Permission
+    description: Streaming entitlement — {device, region (alpha-2), maxPlayerSizePercentage 0-100}.
+    note: >-
+      maxPlayerSizePercentage is a rights term expressed as a schema field: some content may only be
+      shown at a capped fraction of screen width.
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/Permission
+  - name: Dma / DmaPermission
+    id_field: code
+    description: US Designated Market Area — {code, cities[], regions[]}. The unit of US broadcast blackout.
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/Dma
+  - name: Region
+    id_field: code
+    description: '{code, name, continent} — the playback region catalogue served by GET /regions.'
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/Region
+  - name: Feed
+    description: A licensed data feed available on a fixture — {Name, Type, IsLicensed, Metadata}.
+    note: IsLicensed is entitlement-as-data again; Metadata (map<string,string>) exists only in Booking V2.
+    source: openapi/betgenius-booking-v2-openapi.yml#/definitions/Feed
+  - name: ExternalId
+    description: '{Source, Id} — third-party identifier for a fixture (optaId, fibaId, vesselId, …).'
+    source: openapi/betgenius-booking-v2-openapi.yml#/definitions/ExternalId
+  - name: Problem
+    description: RFC 7807 error envelope. See errors/betgenius-problem-types.yml.
+    source: openapi/betgenius-video-v3-openapi.yml#/definitions/Problem
+relationships:
+  - {from: Fixture, to: LiveStream, kind: has_many, via: liveStreams}
+  - {from: Fixture, to: VodStream, kind: has_many, via: vodStreams}
+  - {from: Fixture, to: Feed, kind: has_many, via: AvailableFeeds}
+  - {from: Fixture, to: ExternalId, kind: has_many, via: ExternalIds}
+  - {from: Fixture, to: FixturePhase, kind: has_one, via: phase}
+  - {from: Fixture, to: BookingStatus, kind: has_one, via: bookingStatus}
+  - {from: LiveStream, to: Permission, kind: has_many, via: permissions}
+  - {from: LiveStream, to: DmaPermission, kind: has_many, via: dmas}
+  - {from: LiveStream, to: HLSDelivery, kind: has_many, via: deliveries.hls}
+  - {from: LiveStream, to: DASHDelivery, kind: has_many, via: deliveries.dash}
+  - {from: LiveStream, to: SRTDelivery, kind: has_many, via: deliveries.srt, optional: true}
+  - {from: VodStream, to: Permission, kind: has_many, via: permissions}
+  - {from: VodStream, to: DmaPermission, kind: has_many, via: dmas}
+  - {from: Permission, to: Device, kind: has_one, via: device}
+  - {from: Dma, to: Region, kind: has_many, via: regions}
+  - {from: HLSDelivery, to: DRM, kind: has_one, via: drm, optional: true}
+  - {from: DASHDelivery, to: DRM, kind: has_one, via: drm, optional: true}
+  - {from: FixturesPage, to: Fixture, kind: has_many, via: data}
+  - {from: FixturesPage, to: Paging, kind: has_one, via: paging}
+enumerations:
+  - name: FixturePhase
+    note: Fixture lifecycle phase, e.g. PRE_MATCH.
+  - name: BookingStatus
+    note: e.g. BOOKED.
+  - name: Device
+    note: e.g. MOBILE, TABLET. Governs which Permission applies.
+  - name: DRM
+    values_documented: [Widevine, FairPlay]
+    note: FairPlay requires both the fairplay and fairplayCertificate values in the response.
+external_identifiers:
+  - field: CustomerFixtureId
+    description: The operator's own id for a fixture, echoed back by the Booking API.
+  - field: 'ExternalIds[].Source / .Id'
+    description: Third-party provider ids carried on the fixture.
+  - field: sportsbookFixtureId / sportsbookMarketId / sportsbookSelectionId
+    description: >-
+      Carried on the BetVision `addToBetslip` multibet event so the operator can resolve a
+      selection in its own catalogue. See components/betgenius-components.yml.
+cross_domain_ids:
+  note: >-
+    sportId is a stable platform-wide integer — 10 is Football (soccer), 17 is American Football,
+    as evidenced by both the Statistics API paths (/v3/sports/17/...) and the published OAuth scope
+    form `matchstateapi/sport.10`. Fixture ids are shared across Booking, Video, Match State and
+    the Fixtures API v2 catalogued under all/genius-sports/.

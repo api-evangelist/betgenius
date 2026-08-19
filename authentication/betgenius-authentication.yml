@@ -1,0 +1,84 @@
+generated: '2026-08-13'
+method: searched
+source: openapi/betgenius-booking-v1-openapi.yml, openapi/betgenius-booking-v2-openapi.yml, openapi/betgenius-video-v3-openapi.yml
+docs:
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/3925901961/Match+State+Platform+APIs+Authentication
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+  - https://geniussports.atlassian.net/wiki/spaces/BID/pages/6779994181/Secure+sign-in+for+Data+Services+two-step+verification
+note: >-
+  BetGenius runs three different auth models across three product surfaces, and an integrator has
+  to implement all three. Nothing is self-service: every credential on this platform is issued by
+  a Genius Sports integration manager or the Support team to a contracted sportsbook.
+summary:
+  types: [http, apiKey, oauth2]
+  api_key_in: [header]
+  oauth2_flows: [clientCredentials]
+  self_service: false
+  credential_issuance: manual — issued by the Genius Sports integration/onboarding team
+schemes:
+  - name: basic
+    type: http
+    scheme: basic
+    description: >-
+      Basic HTTP Authentication. "To access the Booking API, our Support team will provide you with
+      the exclusive Username and Password." Credentials are formatted {UserName}:{Password}.
+    applies_to: Booking API (V1 and V2)
+    sources:
+      - openapi/betgenius-booking-v1-openapi.yml
+      - openapi/betgenius-booking-v2-openapi.yml
+    docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+  - name: CognitoPool
+    type: apiKey
+    in: header
+    parameter: Authorization
+    description: >-
+      AWS Cognito user-pool authorizer fronted by API Gateway
+      (x-amazon-apigateway-authtype: cognito_user_pools). The bearer value goes in the
+      Authorization header.
+    applies_to: Video Streaming API v3
+    sources: [openapi/betgenius-video-v3-openapi.yml]
+  - name: api_key
+    type: apiKey
+    in: header
+    parameter: x-api-key
+    description: >-
+      Issued API key. Per the platform auth docs, "An issued API Key controls the available quotas,
+      rate limits, and throttling." Required alongside the bearer token on every request.
+    applies_to: Video Streaming API v3, Match State Platform APIs, Statistics API
+    sources: [openapi/betgenius-video-v3-openapi.yml]
+  - name: OAuth2
+    type: oauth2
+    flow: clientCredentials
+    token_urls:
+      production: https://auth.api.geniussports.com/oauth2/token
+      uat: https://uat.auth.api.geniussports.com/oauth2/token
+    token_lifetime_seconds: 3600
+    token_type: Bearer
+    description: >-
+      OAuth2 client_credentials against an Amazon Cognito issuer
+      (cognito-idp.eu-west-1.amazonaws.com). The access token is passed in an AUTHORIZATION header
+      and must be paired with the x-api-key header. This scheme is documented in the BetGenius
+      Integration Documents and governs the Match State Platform, Access Control, Schedule and
+      Statistics APIs used by the sportsbook live-data integration; it is not declared in the three
+      OpenAPI files harvested into openapi/, which cover Booking and Video only.
+    docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3925901961/Match+State+Platform+APIs+Authentication
+    method: searched
+  - name: HMAC digest (Genius Live Player)
+    type: signature
+    algorithm: HMAC-SHA256
+    description: >-
+      The embeddable Genius Live Player / BetVision widget is authorised per end user, not per
+      integrator: the `digest` query parameter is "an HMAC-SHA256 hash of the end user's device ID
+      (MAID) and a shared secret", with the shared secret issued by the Genius onboarding team.
+      Region/DMA entitlement is enforced at the edge — an out-of-market viewer never receives the
+      player_ready event.
+    applies_to: Genius Live Player widgetLoader, BetVision
+    docs: https://dap-docs.betstream.betgenius.com/video-player/web-browser-integration
+    method: searched
+portal_authentication:
+  surface: Data Services web portal (InPlay Manager, PreMatch Manager, Event Viewer)
+  model: password + emailed magic link (two-step verification)
+  note: >-
+    Explicitly NOT an authenticator app, SMS code, or hardware key — "Today the second step is
+    email only." Rolled out incrementally per customer organisation.
+  docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/6779994181/Secure+sign-in+for+Data+Services+two-step+verification

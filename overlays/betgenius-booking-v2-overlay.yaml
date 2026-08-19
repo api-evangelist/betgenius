@@ -1,0 +1,34 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for BetGenius Booking API V2
+  version: 1.0.0
+extends: openapi/betgenius-booking-v2-openapi.yml
+x-generated: '2026-08-13'
+x-method: generated
+x-source: derived from openapi/betgenius-booking-v2-openapi.yml plus the BetGenius Integration Documents (Confluence space BID) and dap-docs.betstream.betgenius.com
+actions:
+- target: $.info
+  update:
+    x-apievangelist-note: Harvested verbatim from https://dataservices.betgenius.com/BookingSystem/swagger/docs/V2. Identical operations to V1; the only contract difference is the Metadata map added to Feed.
+    x-apievangelist-harvested: '2026-08-13'
+    x-apievangelist-base-url: https://dataservices.betgenius.com/BookingSystem
+    x-apievangelist-uat-base-url: https://dataservices.uat.betgenius.com/BookingSystem
+- target: $.paths['/api/v2/booking/Fixtures'].get
+  update:
+    x-apievangelist-rate-limit: 10 minute cooldown per sport; maximum 7 days of fixtures per call. Documented in prose only, with no response headers.
+    x-apievangelist-docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+    x-apievangelist-missing-responses: No 4xx/5xx responses are declared. The rate-limited response is described in prose but has no documented status code or shape.
+- target: $.paths['/api/v2/booking/Book'].post
+  update:
+    x-apievangelist-idempotency: None. No idempotency key is accepted. Reconcile with Fixtures before retrying.
+    x-apievangelist-consequence: 'Chargeable commercial action: booking enables billed data feeds.'
+    x-apievangelist-alternative: InPlay Manager Auto-Booking templates book in bulk; disabling a template un-books every fixture it booked.
+- target: $.paths['/api/v2/booking/UnBook'].post
+  update:
+    x-apievangelist-consequence: 'Destructive: withdraws a live feed a trading desk may be pricing against.'
+- target: $.definitions.Fixture
+  update:
+    x-apievangelist-join-key: FixtureId is the platform-wide Genius Sports fixture id, shared with the Video Streaming API, the Match State Platform and the Fixtures API v2. CustomerFixtureId and ExternalIds[] carry the operator's and third parties' own identifiers.
+- target: $.definitions.Feed
+  update:
+    x-apievangelist-entitlement: IsLicensed expresses entitlement as data — check it before booking rather than discovering the failure on the write.

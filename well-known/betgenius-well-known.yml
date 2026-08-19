@@ -1,0 +1,62 @@
+generated: '2026-08-13'
+method: probed
+source: live probes of every BetGenius / Genius Sports host named in apis.yml and in the harvested OpenAPI
+note: >-
+  Every /.well-known/ path probed returned a miss on every host. dataservices.betgenius.com
+  (the Booking API host) answers a hard IIS 404 for all five paths. dap-docs.betstream.betgenius.com
+  is an S3-backed static site that answers 403 AccessDenied for any key that does not exist —
+  functionally the same miss. betgenius.com and www.betgenius.com do not complete a TLS handshake
+  at all (see security/betgenius-domain-security.yml). No WellKnown and no SecurityTxt pointer is
+  emitted, because nothing was served: this file records a verified absence, not a presence.
+hosts:
+  - host: https://dataservices.betgenius.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: https://dap-docs.betstream.betgenius.com
+    note: S3 static origin returns 403 AccessDenied for any non-existent key
+    documents:
+      - path: /.well-known/security.txt
+        status: 403
+      - path: /.well-known/openid-configuration
+        status: 403
+      - path: /.well-known/oauth-authorization-server
+        status: 403
+      - path: /.well-known/api-catalog
+        status: 403
+      - path: /.well-known/ai-plugin.json
+        status: 403
+      - path: /.well-known/agent-card.json
+        status: 403
+      - path: /.well-known/agent.json
+        status: 403
+  - host: https://www.betgenius.com
+    note: TLS handshake fails (LibreSSL tlsv1 alert internal error); host unreachable over HTTPS and HTTP
+    documents:
+      - path: /.well-known/security.txt
+        status: 0
+      - path: /.well-known/agent-card.json
+        status: 0
+      - path: /.well-known/agent.json
+        status: 0
+  - host: https://www.geniussports.com
+    note: parent-company marketing host; probed because betgenius.com now redirects here
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404

@@ -1,0 +1,251 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "V1",
+    "title": "An API for booking fixtures"
+  },
+  "host": "dataservices.betgenius.com",
+  "basePath": "/BookingSystem",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/api/booking/Book": {
+      "post": {
+        "tags": [
+          "BookingV1"
+        ],
+        "summary": "Book a fixture",
+        "operationId": "BookingV1_Book",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/booking/UnBook": {
+      "post": {
+        "tags": [
+          "BookingV1"
+        ],
+        "summary": "Un-book a fixture",
+        "operationId": "BookingV1_UnBook",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "fixtureId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/booking/Fixtures": {
+      "get": {
+        "tags": [
+          "BookingV1"
+        ],
+        "summary": "Request a list of upcoming fixtures",
+        "operationId": "BookingV1_Fixtures",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "sportId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Fixture"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CancellationToken": {
+      "type": "object",
+      "properties": {
+        "IsCancellationRequested": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "CanBeCanceled": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "WaitHandle": {
+          "$ref": "#/definitions/WaitHandle",
+          "readOnly": true
+        }
+      }
+    },
+    "WaitHandle": {
+      "type": "object",
+      "properties": {
+        "Handle": {
+          "type": "object"
+        },
+        "SafeWaitHandle": {
+          "$ref": "#/definitions/SafeWaitHandle"
+        }
+      }
+    },
+    "SafeWaitHandle": {
+      "type": "object",
+      "properties": {
+        "IsInvalid": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "IsClosed": {
+          "type": "boolean",
+          "readOnly": true
+        }
+      }
+    },
+    "Fixture": {
+      "type": "object",
+      "properties": {
+        "CompetitionId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "CompetitionName": {
+          "type": "string"
+        },
+        "CustomerFixtureId": {
+          "type": "string"
+        },
+        "Date": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "FixtureId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "IsBooked": {
+          "type": "boolean"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "SportId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "AvailableFeeds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Feed"
+          }
+        },
+        "ExternalIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExternalId"
+          }
+        }
+      }
+    },
+    "Feed": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "Type": {
+          "type": "string"
+        },
+        "IsLicensed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ExternalId": {
+      "type": "object",
+      "properties": {
+        "Source": {
+          "type": "string"
+        },
+        "Id": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basic": {
+      "type": "basic",
+      "description": "Basic HTTP Authentication"
+    }
+  }
+}

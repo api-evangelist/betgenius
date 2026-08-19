@@ -1,0 +1,25 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for BetGenius Booking API V1
+  version: 1.0.0
+extends: openapi/betgenius-booking-v1-openapi.yml
+x-generated: '2026-08-13'
+x-method: generated
+x-source: derived from openapi/betgenius-booking-v1-openapi.yml plus the BetGenius Integration Documents (Confluence space BID) and dap-docs.betstream.betgenius.com
+actions:
+- target: $.info
+  update:
+    x-apievangelist-note: Harvested verbatim from the Swashbuckle discovery path https://dataservices.betgenius.com/BookingSystem/swagger/docs/V1 (note the capital V — the lowercase /v1 path 404s). Served from BetGenius's own host.
+    x-apievangelist-superseded-by: V2 at /api/v2/booking/*
+    x-apievangelist-harvested: '2026-08-13'
+- target: $.paths['/api/booking/Fixtures'].get
+  update:
+    x-apievangelist-rate-limit: 10 minute cooldown per sport; maximum 7 days of fixtures per call. Documented in prose only, with no response headers.
+    x-apievangelist-docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
+- target: $.paths['/api/booking/Book'].post
+  update:
+    x-apievangelist-idempotency: None. No idempotency key is accepted. Idempotent by state only — booking an already-booked fixture is a no-op.
+    x-apievangelist-consequence: 'Chargeable commercial action: booking enables billed data feeds.'
+- target: $.paths['/api/booking/UnBook'].post
+  update:
+    x-apievangelist-consequence: 'Destructive: withdraws a live feed a trading desk may be pricing against.'

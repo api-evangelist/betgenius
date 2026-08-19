@@ -1,0 +1,155 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://geniussports.atlassian.net/wiki/spaces/BID (BetGenius Integration Documents),
+  https://dap-docs.betstream.betgenius.com (Genius Sports Integration Guide),
+  and the three OpenAPI files in openapi/
+note: >-
+  BetGenius is not one API with one set of conventions. It is three eras of platform layered on
+  each other — a .NET/Swashbuckle Booking service on dataservices.betgenius.com, an AWS API
+  Gateway estate on *.api.geniussports.com, and a browser-embedded player that speaks a CustomEvent
+  bus. This file records the cross-cutting semantics per surface rather than pretending there is
+  one house style, because an integrator has to write three clients.
+authentication:
+  style: per-surface — see authentication/betgenius-authentication.yml
+  summary: >-
+    Booking = HTTP Basic. Video/Match State/Statistics = OAuth2 client_credentials bearer token in
+    the Authorization header PLUS an issued x-api-key header (both are required; the API key is
+    what carries the quota). Player embed = per-end-user HMAC-SHA256 digest over the device MAID.
+versioning:
+  scheme: uri-path
+  surfaces:
+    - api: Booking API
+      versions: [V1, V2]
+      form: '/api/booking/... (V1) vs /api/v2/booking/... (V2)'
+      discovery: Swashbuckle discoveryPaths — swagger/docs/V1 and swagger/docs/V2 (capital V)
+      note: V1 and V2 are byte-for-byte the same three operations; V2 adds a Metadata map on Feed.
+    - api: Video Streaming API
+      versions: [v3]
+      form: 'basePath /Video-v3/{ENV} on api.geniussports.com; spec info.version 3.4.1'
+    - api: Match State Platform
+      versions: [v1, v2]
+      form: '/api/v1/... with an optional `sportApiVersion` query parameter to pin the sport contract version'
+    - api: Statistics API
+      versions: [v2, v3]
+      form: '/v2/... and /v3/... — v2 is OpenAPI 3.0.4, v3 is OpenAPI 3.1.1'
+  environments:
+    pattern: >-
+      Environment is expressed in the HOSTNAME, not a header. Production is the bare host; UAT is
+      the same host with a `uat.` label inserted — auth.api → uat.auth.api; platform.matchstate.api
+      → platform.uat.matchstate.api; dataservices → dataservices.uat. The Fixtures/Video explorer
+      instead puts the environment in the path (/Video/v3/PRODPRM/, /Video/v3/UAT/).
+    environments: [CI, UAT, Production]
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    No idempotency key is documented or accepted on any BetGenius surface. The Booking API's
+    Book/UnBook operations are naturally idempotent by state (booking an already-booked fixtureId
+    is a no-op) but there is no Idempotency-Key contract, no replay window, and no request
+    fingerprinting. A client cannot safely retry a POST it did not see the response to and know
+    whether it applied. No `Idempotency` pointer is emitted for this repo.
+pagination:
+  supported: partial
+  styles:
+    - surface: Video Streaming API v3
+      style: cursor
+      request_parameters: [before, after, limit]
+      response_envelope: 'FixturesPage {data[], paging}'
+      response_fields:
+        - paging.cursors.before
+        - paging.cursors.after
+        - paging.previous
+        - paging.next
+      note: >-
+        Facebook-style opaque cursors with pre-built previous/next endpoint URLs. `previous` is
+        omitted on the first page. This is the only properly paginated surface in the repo.
+    - surface: Booking API (V1 and V2)
+      style: none
+      note: >-
+        /Fixtures returns a bare array. There is no page size, cursor or offset — result volume is
+        bounded instead by the documented 7-day `from`/`until` window and the 10-minute per-sport
+        cooldown.
+  note: >-
+    The parent platform's Fixtures API v2 (catalogued separately under all/genius-sports/) uses a
+    third style again — HATEOAS wrappers at up to 200 items per page. Three surfaces, three
+    pagination models.
+error_envelope:
+  formats:
+    - surface: Video Streaming API v3
+      format: rfc7807
+      media_type: application/problem+json
+      schema: Problem (type, title, status, detail, instance)
+      note: The spec describes 400/401/403/404 as "A base RFC-7807 error response."
+    - surface: Match State Platform / Access Control
+      format: bare-json
+      shape: '{"Message": "Access Denied"} on a bad access token; {"Message": "Unauthorized"} on a bad API key'
+      note: AWS API Gateway default envelope — not RFC 7807, capital-M `Message`.
+    - surface: Booking API
+      format: unspecified
+      note: >-
+        The Swagger declares only a 200 with `type: object` on every operation. No error shape is
+        published; the rate-limit response is described in prose as informing the caller of "the
+        remaining time left before a successful query will be processed."
+    - surface: Genius Live Player (browser)
+      format: event
+      shape: 'player_not_ready CustomEvent with detail.body.error[] carrying numeric codes 1001-1004'
+      see: errors/betgenius-problem-types.yml
+  cross_reference: errors/betgenius-problem-types.yml
+rate_limit_signalling:
+  headers: []
+  note: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After header on any surface. Limits are prose-only.
+    See rate-limits/betgenius-rate-limits.yml.
+request_tracing:
+  header: null
+  correlation_id:
+    surface: geniussportsmessagebus (browser)
+    field: detail.correlationId
+    format: uuid
+    note: >-
+      The only correlation identifier BetGenius publishes is on the client-side message bus, where
+      every CustomEvent carries a `correlationId`. There is no server-side request-id header
+      documented on any REST surface.
+liveness_and_recovery:
+  heartbeat:
+    direction: BetGenius -> customer
+    interval_seconds: 10
+    failure_threshold_seconds: 25-30
+    contract: >-
+      "We provide a heartbeat service that calls your Data Receiver's heartbeat method every 10
+      seconds... If the heartbeat fails for more than 25-30 seconds... your trading system must
+      suspend trading on markets created or managed by our InPlay or PreMatch services to prevent
+      bets at outdated prices."
+    note: >-
+      This inverts the usual polling contract: the integrator implements a callback endpoint that
+      BetGenius calls, and missing two or three calls is a trading-suspension signal, not a warning.
+      It is the closest thing on this platform to a hard runtime SLO, and it is the reason a naive
+      client is commercially dangerous here.
+  resend_recovery:
+    trigger: heartbeat inactive for a configurable minimum outage period (default 5 minutes)
+    behaviour: PreMatch data is resent, batched and throttled; recovery time scales with fixture count
+    caveat: >-
+      An outage shorter than the threshold triggers NO automatic resend. "Customers should define
+      their own strategy for handling PreMatch availability during short outages."
+  circuit_breaker: circuit-breaker activation is an additional independent resend trigger
+  source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/34822535/Service+Reliability+and+Availability
+metadata_and_expansion:
+  field_expansion: not supported
+  metadata:
+    surface: Booking API V2
+    field: Feed.Metadata
+    type: 'map<string,string>'
+    note: The only extensibility hook in the Booking contract; absent from V1.
+external_ids:
+  note: >-
+    Fixtures carry an `ExternalIds[]` array of {Source, Id} pairs and a `CustomerFixtureId` string,
+    so an operator can round-trip its own identifiers. This is the intended join key between a
+    sportsbook's catalogue and Genius Sports fixture ids.
+cross_links:
+  authentication: authentication/betgenius-authentication.yml
+  scopes: scopes/betgenius-scopes.yml
+  errors: errors/betgenius-problem-types.yml
+  rate_limits: rate-limits/betgenius-rate-limits.yml
+  lifecycle: lifecycle/betgenius-lifecycle.yml
+  sandbox: sandbox/betgenius-sandbox.yml

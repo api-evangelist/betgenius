@@ -1,0 +1,113 @@
+generated: '2026-08-13'
+method: searched
+source: https://dap-docs.betstream.betgenius.com/
+note: >-
+  This is where BetGenius's real developer surface is. The REST APIs are small; the product an
+  operator actually integrates is a set of embeddable browser components — a video player, an
+  in-play betting overlay, game trackers — that are dropped into the sportsbook's own page with a
+  script tag and then talk back to the host application over a window CustomEvent bus called
+  `geniussportsmessagebus`. That bus, not an OpenAPI, is the primary contract, and it is fully
+  documented in public at dap-docs.betstream.betgenius.com.
+loader:
+  kind: script tag
+  distribution: cdn
+  pinned: false
+  urls:
+    production: https://genius-live-player-production.betstream.betgenius.com/widgetLoader
+    uat: https://genius-live-player-uat.betstream.betgenius.com/widgetLoader
+  install: >-
+    <script src="https://genius-live-player-production.betstream.betgenius.com/widgetLoader?customerId=YOUR_CUSTOMER_ID&fixtureId=YOUR_FIXTURE_ID&deviceId=END_USER_DEVICE_ID&digest=END_USER_DIGEST"></script>
+  mount: '<div id="YOUR_CONTAINER_ID" />  <!-- defaults to id "geniusLive" -->'
+  versioning: >-
+    The loader URL carries no version segment and no integrity hash — it floats to whatever is
+    deployed. A consumer cannot pin, and cannot tell what they are running.
+  parameters:
+    required:
+      - name: customerId
+        description: Genius Sports customer Id.
+      - name: fixtureId
+        description: Event fixture Id.
+      - name: deviceId
+        description: The end user's Mobile Advertising ID (MAID) — GAID on Android, IDFA on iOS.
+      - name: digest
+        description: >-
+          HMAC-SHA256 hash of the end user's device ID (MAID) and a shared secret issued by the
+          Genius onboarding team. Per-end-user authorisation.
+    optional:
+      - {name: containerId, default: geniusLive}
+      - {name: controlsEnabled, default: 'true'}
+      - {name: allowFullScreen, default: 'true'}
+      - {name: audioEnabled, default: 'true'}
+      - {name: autoplayEnabled, default: 'false'}
+      - {name: width, default: 600px, note: "'%' must be URL-encoded as %25; 'auto' is not supported"}
+      - {name: height, default: 300px, note: "'%' must be URL-encoded as %25; 'auto' is not supported"}
+      - {name: culture, note: "player culture, e.g. en-US"}
+families:
+  - family: Genius Live Player
+    description: >-
+      The video component. Detects the available stream types for a fixture and picks the delivery
+      appropriate to the viewer's device, then raises `player_ready` asking the host application's
+      BACKEND to fetch a stream URL and token from the Video Streaming API. The API "must never be
+      called from end-user browser/client code."
+    platforms: [web, iOS (UIKit + SwiftUI via WKWebView), Android (WebView)]
+    delivery_types: [HLS, DASH, SRT]
+    drm: [Google Widevine, Apple FairPlay]
+    js_api:
+      - 'GeniusLivePlayer.player.start(tokenResponse)'
+      - 'GeniusLivePlayer.player.close()'
+    docs: https://dap-docs.betstream.betgenius.com/video-player/introduction
+    backing_operations:
+      - openapi/betgenius-video-v3-openapi.yml#createHLSStream
+      - openapi/betgenius-video-v3-openapi.yml#createDASHStream
+      - openapi/betgenius-video-v3-openapi.yml#createSRTStream
+      - openapi/betgenius-video-v3-openapi.yml#createHlsVod
+  - family: BetVision
+    description: >-
+      The interactive in-play layer on top of the player — prices and markets rendered over live
+      video, an embedded betslip, and a Watchlist of the viewer's open bets. Interactive Betting
+      mode unlocks only "once your prices and markets are fully integrated into our system and you
+      have completed your Betslip integration."
+    docs: https://dap-docs.betstream.betgenius.com/bet-vision/introduction
+    sub_components:
+      - name: BetVision UI / Watchlist
+        contract: setUserBets / requestUserBets events carrying CustomerMarket[] + Selection[]
+        note: >-
+          Stateless by design — "The setUserBets body completely overwrites the state of the
+          Watchlist"; omit a market and the UI drops it.
+        docs: https://dap-docs.betstream.betgenius.com/bet-vision/User-Bets/api
+      - name: Betslip in iframe
+        contract: betslip-container-dimensions event carrying {left, top, width, height}
+        note: Emitted on rotation/resize so the host can position its own betslip inside the video experience.
+        docs: https://dap-docs.betstream.betgenius.com/bet-vision/integrating-betslip-inside-iframe
+      - name: Theming
+        docs: https://dap-docs.betstream.betgenius.com/bet-vision/theming
+        note: Skinning follows the TheoPlayer UI skinning guide.
+  - family: Game Trackers / Multisport GameTracker
+    description: Embedded live match visualisations, including an NFL Multisport GameTracker with a customisation surface.
+    docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/2408054789/Game+Trackers+Integrations
+  - family: ScoreCentre
+    description: Sportsbook-facing scoreboard/stats widgets marketed as part of the BetGenius sportsbook platform.
+    docs: https://www.geniussports.com/bet/
+    note: Named on the product site; no public integration reference was found in the BID space or dap-docs.
+message_bus:
+  name: geniussportsmessagebus
+  transport: window CustomEvent (DOM)
+  envelope:
+    correlationId: string (uuid)
+    routingKey: object
+    type: string
+    body: any
+  listen: "window.addEventListener('geniussportsmessagebus', handler)"
+  dispatch: "window.dispatchEvent(new CustomEvent('geniussportsmessagebus', {detail: {...}}))"
+  see: asyncapi/betgenius-event-surface.yml
+constraints:
+  geographic: >-
+    Region and DMA entitlement is enforced at the edge. An out-of-market viewer silently receives
+    no player_ready event and sees no player at all.
+  permitted_users: >-
+    "Limited to Active Bettors currently logged-in to the bookmaker account, and physically located
+    in a state where betting on such account is legal and regulated."
+  permitted_devices: >-
+    CBS, FOX, NBC, ESPN/ABC and Amazon games — mobile phones and tablets over cellular or WiFi.
+    NFL Network games — mobile phones only.
+  source: https://dap-docs.betstream.betgenius.com/bet-vision/restrictions

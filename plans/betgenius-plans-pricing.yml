@@ -1,0 +1,23 @@
+generated: '2026-08-13'
+method: searched
+source: https://www.geniussports.com/contact-sales/sportsbook-contact/
+plan_count: 0
+note: >-
+  BetGenius publishes no plans, tiers or prices. Every sportsbook product page on
+  geniussports.com/bet/ (Data & Odds APIs, Genius Trading Services, BetVision, BetBuilder) ends in
+  a "Contact sales" form rather than a pricing table, and the Booking, Video and Match State APIs
+  are all issued to contracted operators by an integration manager — the docs say credentials come
+  from "our Support team" or "your integration manager", never from a self-serve signup. There is
+  no trial, no free tier, and no published unit of account (per fixture, per feed, per stream).
+  This is an enterprise B2B licensing motion, not a metered API product; the zero is the finding.
+plans: []
+pricing_pages:
+  - url: https://www.geniussports.com/bet/
+    status: 200
+    note: sportsbook product overview; no prices
+  - url: https://www.geniussports.com/contact-sales/sportsbook-contact/
+    status: 200
+    note: sportsbook sales contact form — stands in for a pricing page
+  - url: https://www.geniussports.com/bet/odds-feeds-api/
+    status: 200
+    note: Data & Odds API product page; no prices

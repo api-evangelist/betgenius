@@ -1,0 +1,79 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://dap-docs.betstream.betgenius.com/video-player/web-browser-integration,
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API,
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/3925901961/Match+State+Platform+APIs+Authentication,
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/3265364369/API+Explorer+for+Ably+Push+Feeds
+note: >-
+  BetGenius ships a real UAT tier across every surface, and it is addressed by HOSTNAME rather than
+  by a key prefix or a mode flag — there is no `test_` vs `live_` credential convention here, so a
+  client points at a different host and uses different issued credentials. Crucially, UAT is still
+  gated: the docs publish the environment URLs but never a shared test credential, so an
+  unlicensed developer cannot exercise any of it. The one genuinely valuable fixture is
+  GeniusPremiumReplay, a replayable historic-match feed built specifically to let an integrator
+  rehearse in-play action points off-season.
+test_live_separation:
+  mechanism: hostname
+  key_prefixes: none
+  mode_flag: none
+  note: >-
+    Promotion is a string swap. For the player: "Change the string uat to production in the URL to
+    promote to the production environment." For the platform APIs: insert a `uat.` label.
+environments:
+  - name: CI
+    audience: Genius Sports internal
+    examples:
+      - https://platform.ci.matchstate.api.geniussports.com/swagger/schedule/index.html
+      - https://swaggerui.api.geniussports.com/?url=https://explorer.api.geniussports.com/Fixtures%2Fv2%2FCI%2Fswagger-latest.json
+  - name: UAT
+    audience: contracted integrators
+    hosts:
+      booking_api: https://dataservices.uat.betgenius.com/BookingSystem/swagger
+      auth: https://uat.auth.api.geniussports.com/oauth2/token
+      match_state_platform: https://platform.uat.matchstate.api.geniussports.com/api/v1
+      match_state_swagger: https://platform.uat.matchstate.api.geniussports.com/swagger/index.html
+      statistics_api: https://uat.statistics.api.geniussports.com/swagger/index.html
+      video_api_spec: https://explorer.api.geniussports.com/Video/v3/UAT/swagger-latest.json
+      live_player: https://genius-live-player-uat.betstream.betgenius.com/widgetLoader
+  - name: Production
+    hosts:
+      booking_api: https://dataservices.betgenius.com/BookingSystem
+      auth: https://auth.api.geniussports.com/oauth2/token
+      match_state_platform: https://platform.matchstate.api.geniussports.com/api/v1
+      statistics_api: https://statistics.api.geniussports.com
+      video_api: https://api.geniussports.com/Video-v3/PRODPRM
+      live_player: https://genius-live-player-production.betstream.betgenius.com/widgetLoader
+test_fixtures:
+  - name: GeniusPremiumReplay
+    kind: replayable historic match feed
+    sport: American Football
+    contract_versions: [V1, V2]
+    environments: [UAT, Production]
+    message_rate: max 2 messages per second
+    message_size: up to 800 kB
+    description: >-
+      "Test feed with replayable historic matches. This is intended to aid the integration process
+      by providing historic matches with all the neccessary action points."
+    guide: https://geniussports.atlassian.net/wiki/spaces/BID/pages/6461227032/GeniusPremiumReplay+Replay+Guide
+    source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3265364369/API+Explorer+for+Ably+Push+Feeds
+  - name: Continuous UAT stream (non-DRM and DRM)
+    kind: always-on video fixture
+    description: >-
+      "We provide a UAT environment for you to test, with a continuous non-DRM and DRM'd fixture."
+    caveat: >-
+      DRM cannot be validated in simulators — "Testing DRM on iOS requires the use of real devices."
+    source: https://dap-docs.betstream.betgenius.com/video-player/web-browser-integration
+test_credentials:
+  published: false
+  note: >-
+    No shared sandbox key, no public demo customerId, no test username/password is published for
+    any surface. Booking UAT needs a Support-issued Basic credential; the platform APIs need an
+    issued client_id/client_secret plus an x-api-key; the player needs a customerId and a shared
+    secret from the Genius onboarding team for the HMAC digest. Every path to a first call runs
+    through a human.
+time_simulation:
+  supported: false
+  note: >-
+    No test clocks. Time is simulated only in the sense that GeniusPremiumReplay replays a real
+    historic match at real cadence.

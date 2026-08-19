@@ -1,0 +1,84 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/6069027312/Genius+Sports+Status+Page,
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/34822535/Service+Reliability+and+Availability
+versioning:
+  scheme: uri-path
+  current:
+    booking_api: V2
+    video_api: v3 (spec version 3.4.1)
+    match_state_platform: v1 (with per-sport contract versions v1/v2)
+    statistics_api: v3
+  policy_url: null
+  note: >-
+    Old versions are kept live rather than sunset — Booking V1 is still served alongside V2 from
+    the same Swashbuckle discovery list, and Match State exposes a `sportApiVersion` query
+    parameter so a caller can pin an older sport contract. That is generous to integrators but
+    there is no published statement of how long a version survives.
+deprecation:
+  policy_url: null
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    No deprecation policy, no RFC 8594 Sunset/Deprecation header support, and no operation in any
+    of the three harvested specs carries `deprecated: true`. Version retirement is communicated
+    through the assigned integration manager, not through the contract. No `Deprecation` pointer is
+    emitted, because there is no policy to point at.
+status_page:
+  url: https://status.geniussports.com
+  status: 200
+  public: false
+  gating: >-
+    The status page resolves and serves ("Genius Sports Status - Login") but requires an account.
+    "As part of the live operations setup, we create access to the status platform for each
+    customer or integration partner" — so incident history and current state are visible to
+    contracted operators only, not to the public or to a prospective integrator.
+  capabilities:
+    - Live operational state per Genius service
+    - Incident notices, recovery progress and resolutions
+    - Scheduled maintenance windows published in advance
+  notifications:
+    channels: [email, sms, webhook]
+    model: per-customer self-subscription — "Every customer must configure their own subscription preferences."
+    note: >-
+      The webhook subscription on the status page is the only push-to-customer HTTP callback
+      BetGenius offers anywhere. It carries incident state, not sports data.
+  source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/6069027312/Genius+Sports+Status+Page
+sla:
+  url: null
+  uptime_target: null
+  note: >-
+    No published uptime target or credit schedule. What IS published is an operational reliability
+    contract that binds the CUSTOMER rather than the provider — see the heartbeat obligation below.
+reliability_contract:
+  heartbeat_interval_seconds: 10
+  suspend_trading_after_seconds: 25-30
+  customer_obligation: >-
+    "your trading system must suspend trading on markets created or managed by our InPlay or
+    PreMatch services to prevent bets at outdated prices."
+  recovery:
+    prematch_resend_trigger: heartbeat inactive for a configurable minimum outage (default 5 minutes)
+    circuit_breaker_recovery: an independent additional resend trigger
+    uncovered_case: >-
+      Outages shorter than the configured threshold trigger no automatic resend; the customer must
+      define its own strategy.
+  monitoring_tool: Loki — logs errors during heartbeat and updategram delivery, exposed to customers
+  scheduled_downtime: >-
+    Customers are asked to notify the Genius Sports Support team of their own scheduled downtime so
+    it can be added to the monitoring suite.
+  source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/34822535/Service+Reliability+and+Availability
+change_log:
+  url: null
+  note: >-
+    No dated changelog exists for the sportsbook surfaces. The Fixtures API v2 spec embeds a
+    "Changelog resume" in info.description, and developer.geniussports.com publishes Warehouse
+    Release Notes whose most recent entry is v2.33, May 2018 — both belong to the Genius Sports
+    data platform (all/genius-sports/), not to BetGenius. No `ChangeLog` pointer is emitted.
+support:
+  model: named integration manager per contracted operator
+  contacts:
+    - sbonboarding@geniussports.com (sportsbook onboarding, from the Fixtures spec contact block)
+    - videointegrationgroup@geniussports.com (GeniusLive integration manager, from the Video-v3 spec contact block)
+  sales: https://www.geniussports.com/contact-sales/sportsbook-contact/

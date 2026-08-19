@@ -1,0 +1,30 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for BetGenius Video Streaming API v3
+  version: 1.0.0
+extends: openapi/betgenius-video-v3-openapi.yml
+x-generated: '2026-08-13'
+x-method: generated
+x-source: derived from openapi/betgenius-video-v3-openapi.yml plus the BetGenius Integration Documents (Confluence space BID) and dap-docs.betstream.betgenius.com
+actions:
+- target: $.info
+  update:
+    x-apievangelist-note: 'Harvested verbatim from https://explorer.api.geniussports.com/Video/v3/PRODPRM/swagger-latest.json. Served on the parent''s api.geniussports.com host: BetGenius is the sportsbook brand of Genius Sports and this is the BetVision / Genius Live product it sells to sportsbooks, published in the BetGenius Integration Documents (Confluence space BID).'
+    x-apievangelist-harvested: '2026-08-13'
+    x-apievangelist-server-side-only: The provider states this API must never be called from end-user browser or client code.
+- target: $.paths['/fixtures'].get
+  update:
+    x-apievangelist-pagination: Cursor pagination via before/after/limit; response carries paging.cursors and ready-made paging.next / paging.previous endpoint URLs. Follow next rather than constructing cursors.
+    x-apievangelist-tip: Pass showPermissions to receive the per-stream permissions[] and dmas[] entitlement blocks.
+- target: $.paths['/regions'].get
+  update:
+    x-apievangelist-note: Cache this. The region value sent when minting a stream must be one of these codes.
+- target: $.definitions.Problem
+  update:
+    x-apievangelist-conformance: RFC 7807 problem details. The envelope is published but no type URI registry is, so problem types are not switchable by a client.
+- target: $.definitions.LiveStream
+  update:
+    x-apievangelist-entitlement: 'Entitlement is modelled as data: permissions[] (device, region, maxPlayerSizePercentage) and dmas[] travel inline with the stream, so a client can see what it may not play before attempting it.'
+- target: $.definitions.Permission
+  update:
+    x-apievangelist-note: maxPlayerSizePercentage is a rights term expressed as a schema field — some content may only be rendered at a capped fraction of screen width.

@@ -1,0 +1,160 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/3990454301/Genius+Sports+Live+Sports+Data+Push+API+via+Ably,
+  https://geniussports.atlassian.net/wiki/spaces/BID/pages/3265364369/API+Explorer+for+Ably+Push+Feeds,
+  https://dap-docs.betstream.betgenius.com/bet-vision/handling-events
+spec_type: none
+asyncapi_published: false
+note: >-
+  BetGenius has a substantial, genuinely documented event surface and publishes NO AsyncAPI for any
+  of it. This file is the honest catalogue of that surface, not a fabricated spec. There are two
+  event transports and they are unrelated to each other: a server-to-client pub/sub feed delivered
+  over Ably (real sports data — match state, match events, live statistics, telemetry), and a
+  client-side browser CustomEvent bus (`geniussportsmessagebus`) that the embedded player uses to
+  talk to the host sportsbook page. Neither is an HTTP webhook. The only outbound HTTP callback
+  BetGenius offers anywhere is the incident webhook on status.geniussports.com, which carries
+  operational status, not sports data.
+surfaces:
+  - name: Genius Sports Live Sports Data Push API (via Ably)
+    transport: Ably pub/sub (WebSocket; also reachable without the Ably SDK)
+    protocol: publish-subscribe
+    direction: Genius Sports -> sportsbook
+    access_model: >-
+      A short-lived Ably accessToken and a channelName are issued per fixture by the Match State
+      Platform Access Control API. The REST call is
+      GET /api/v1/sources/{sourceId}/sports/{sportId}/fixtures/{fixtureId}/liveaccess
+      (plus /liveaccess/matchevents and /liveaccess/telemetry), authenticated with an OAuth2 bearer
+      token AND an x-api-key header. The response is {accessToken, channelName, expiresAtUtc}; on
+      expiry the client either re-calls /liveaccess or supplies an Ably AuthCallback.
+    scheduling_precondition: >-
+      "The fixture that one needs feed for should be scheduled in a period of up to 2 days in the
+      future, by the Schedule API."
+    channels:
+      - name: Match State
+        pattern: 'match-state:{sportName}:{versionNumber}:{fixtureId}:{sourceId}'
+        example: 'match-state:AmericanFootball:v1:123456:GeniusPremium'
+        description: >-
+          Cumulative state of a fixture — the aggregation of every Match Event so far. The most
+          recent Match State is the only source of truth a consumer needs; it grows as the match
+          progresses.
+      - name: Match Events
+        pattern: 'match-state:... (accessed via /liveaccess/matchevents)'
+        description: >-
+          One message per discrete action (GoalScored, CornerAwarded). Source- and sport-specific
+          in the legacy InPlay.Feeds framework, sport-specific and source-agnostic in MS.Platform.
+          Consumers of Match Events MUST maintain their own state — a single event carries only the
+          latest action.
+      - name: Live Match Statistics
+        pattern: 'live-statistics:AmericanFootball:{versionNumber}:{fixtureId}:{sourceId}'
+        description: Live statistical aggregates for a match, e.g. the proportion of field goals made.
+      - name: Telemetry
+        pattern: accessed via /liveaccess/telemetry
+        description: Telemetry match state, currently documented for American Football.
+    stability_warning: >-
+      "The format of a channel name should not be considered to be fixed and might change in the
+      future." Clients are told to use the channelName returned by the Access Control API rather
+      than construct it.
+    sources:
+      - id: GeniusPremium
+        sport: American Football
+        description: >-
+          Ultra-low latency feed, powered by NFL official data when available. "Must not be used
+          for public facing representations of Match State."
+        contract_versions: [V1, V2]
+        environments: [UAT, Production]
+        message_rate: max 2 messages per second
+        message_size: up to 800 kB
+      - id: GeniusPremiumReplay
+        sport: American Football
+        description: Replayable historic matches for integration testing.
+        contract_versions: [V1, V2]
+        environments: [UAT, Production]
+        message_rate: max 2 messages per second
+        message_size: up to 800 kB
+      - id: GeniusSportsItaly
+        sport: Volleyball
+        contract_versions: [V1]
+    delta_compression: >-
+      Ably message delta compression is referenced in the integration guide as an option for
+      reducing bandwidth on the large cumulative Match State payloads.
+    message_schemas_published:
+      - name: Live Match Statistics Message JSON Schema
+        url: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3270934582/Live+Match+Statistics+Message+JSON+Schema
+      - name: NFL Statistics Message JSON Schema
+        url: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3990454862/NFL+Statistics+Message+JSON+Schema
+    note_on_ownership: >-
+      These channels are served from *.api.geniussports.com by the parent platform. They are
+      catalogued here because they are published in the BetGenius Integration Documents (Confluence
+      space BID) that this profile already records as its integration reference, and because they
+      are the feed a contracted sportsbook consumes. The REST contracts behind them
+      (platform.matchstate.api.geniussports.com, statistics.api.geniussports.com) belong to the
+      Genius Sports data platform and are NOT copied into this repo — see all/genius-sports/.
+  - name: geniussportsmessagebus
+    transport: browser DOM CustomEvent on `window`
+    protocol: in-page message bus
+    direction: bidirectional (player <-> host sportsbook page)
+    access_model: none — same-origin page scripting
+    envelope:
+      correlationId: string (uuid)
+      routingKey: object
+      type: string
+      body: any
+    events:
+      - type: player_ready
+        direction: player -> host
+        body: '{streamId, streamType, deliveryType: HLS|DASH, deliveryId, geniusSportsFixtureId, device, region}'
+        description: >-
+          Signals a fixture is available to stream. The host's BACKEND must then POST to the Video
+          Streaming API to exchange these ids for a stream URL and token. May fire more than once
+          per fixture — on multi-CDN failover the player re-emits with a different deliveryId.
+      - type: player_not_ready
+        direction: player -> host
+        body: '{error: [{code, message, details}]}'
+        description: Playback cannot start. Codes 1001-1004; see errors/betgenius-problem-types.yml.
+      - type: requestUserBets
+        direction: player -> host
+        body: 'null'
+        description: >-
+          BetVision is ready to receive the viewer's open bets. Calling setUserBets before this
+          event (or before player_ready) leaves the Watchlist unpopulated.
+      - type: setUserBets
+        direction: host -> player
+        body: 'CustomerMarket[]'
+        description: >-
+          Replaces the entire Watchlist state. CustomerMarket carries {id, type: Single|Multi,
+          status: Open|Settled, selections[], currency, payout, stakePerUnit, cashOutAvailable,
+          cashOutPrice, addedAt}; each Selection carries the fixture, market, selection and a price
+          in fractional, decimal and American forms.
+      - type: multibet-event
+        direction: player -> host
+        body: '{command: addToBetslip|placeBet|openBetslip|closeBetslip, ...}'
+        description: >-
+          The interactive betting commands. addToBetslip carries sportsbookFixtureId, marketId,
+          sportsbookMarketId, sportsbookMarketContext, sportsbookSelectionId and decimalPrice, so
+          the operator can resolve the selection in its own catalogue.
+      - type: betslip-container-dimensions
+        direction: player -> host
+        body: '{left, top, width, height}'
+        description: >-
+          Where and how large the host may draw its betslip inside the BetVision experience.
+          Emitted on rotation/resize, and only when the values actually change.
+    docs: https://dap-docs.betstream.betgenius.com/bet-vision/handling-events
+  - name: Data Receiver heartbeat
+    transport: HTTP callback, provider -> customer
+    direction: Genius Sports -> sportsbook
+    description: >-
+      BetGenius calls a `heartbeat` method the customer implements, every 10 seconds. Two to three
+      missed calls (25-30s) is a contractual signal to suspend in-play trading. This is the closest
+      thing on the platform to an inbound webhook, but it carries liveness, not data.
+    see: lifecycle/betgenius-lifecycle.yml
+    docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/34822535/Service+Reliability+and+Availability
+  - name: Status page notifications
+    transport: email / SMS / HTTP webhook
+    direction: Genius Sports -> sportsbook
+    description: Incident, recovery and maintenance notifications, self-subscribed per customer.
+    docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/6069027312/Genius+Sports+Status+Page
+gaps:
+  - No AsyncAPI document is published for the Ably channels, despite named channels, versioned contracts, per-source message rates and published JSON Schemas — the raw material for one already exists.
+  - Channel naming is explicitly declared unstable, so the only safe discovery path is a REST call per fixture.
+  - The browser event bus has no machine-readable contract at all; the TypeScript interfaces exist only inside prose documentation.

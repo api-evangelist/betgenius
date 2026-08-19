@@ -1,12 +1,29 @@
-generated: '2026-07-11'
+generated: '2026-08-13'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
 - host: www.betgenius.com
   https: false
+- host: dataservices.betgenius.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Dec 26 23:59:59 2026 GMT
+  hsts: true
+  hsts_max_age: 2592000
+- host: api.geniussports.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 28 23:59:59 2026 GMT
+  hsts: null
 domains:
 - domain: betgenius.com
   dnssec: false
   caa: []
   spf: true
   dmarc: false
+- domain: geniussports.com
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine

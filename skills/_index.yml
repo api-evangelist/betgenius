@@ -1,0 +1,25 @@
+generated: '2026-08-13'
+method: generated
+source: >-
+  openapi/betgenius-booking-v2-openapi.yml, openapi/betgenius-video-v3-openapi.yml,
+  https://dap-docs.betstream.betgenius.com, https://geniussports.atlassian.net/wiki/spaces/BID
+note: >-
+  Three skills covering the three things a sportsbook actually does with BetGenius: book the
+  fixtures it wants, stream them to a bettor, and wire its own bet state into the in-play overlay.
+  Every REST step is grounded in an operationId that exists verbatim in the harvested specs. The
+  BetVision skill has no operations[] because that surface genuinely has no REST contract — it is a
+  browser CustomEvent bus — and inventing operationIds for it would be fabrication.
+skills:
+  - file: betgenius-book-fixtures.md
+    name: Book and un-book BetGenius fixtures
+    api: openapi/betgenius-booking-v2-openapi.yml
+    operations: [BookingV2_Fixtures, BookingV2_Book, BookingV2_UnBook]
+  - file: betgenius-stream-live-fixture.md
+    name: Stream a live BetGenius fixture to a bettor
+    api: openapi/betgenius-video-v3-openapi.yml
+    operations: [getFixtures, getFixture, getRegions, createHLSStream, createDASHStream, createSRTStream, createHlsVod]
+  - file: betgenius-betvision-watchlist.md
+    name: Drive the BetVision in-play watchlist and betslip
+    api: components/betgenius-components.yml
+    surface: browser CustomEvent bus (geniussportsmessagebus)
+    operations: []

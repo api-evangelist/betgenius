@@ -1,0 +1,52 @@
+generated: '2026-08-13'
+method: searched
+source: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3925901961/Match+State+Platform+APIs+Authentication
+docs: https://geniussports.atlassian.net/wiki/spaces/BID/pages/3925901961/Match+State+Platform+APIs+Authentication
+note: >-
+  Genius Sports publishes no scopes reference page. `derive-oauth-scopes.py` found nothing, because
+  none of the three OpenAPI files in openapi/ declares an oauth2 securityScheme — Booking uses HTTP
+  Basic and Video-v3 uses a Cognito authorizer modelled as an apiKey. The scopes below are the ones
+  the platform actually issues: they were read out of the decoded `scope` claim of the example
+  access token the BetGenius Integration Documents publish on the authentication page. They are
+  therefore real, provider-published values, but they are an EXAMPLE token's grant — not a complete
+  catalogue, and the descriptions are read from the endpoint each scope guards, not from a
+  provider-written definition. Treat this as evidence that the scope model exists and what its
+  naming convention is, not as an exhaustive list.
+scheme:
+  name: OAuth2
+  flow: clientCredentials
+  token_url: https://auth.api.geniussports.com/oauth2/token
+  issuer: Amazon Cognito user pool in eu-west-1 (cognito-idp.eu-west-1.amazonaws.com)
+  applies_to: Match State Platform APIs, Access Control API, Schedule API, Statistics API
+naming_convention: '<resource-server>/<resource>.<action>  e.g. matchstateapi/schedule.read'
+completeness: partial
+scopes:
+  - scope: matchstateapi/global
+    description: Global access marker on the Match State Platform resource server.
+  - scope: matchstateapi/live.read
+    description: Read live match state / live access tokens.
+  - scope: matchstateapi/live.post
+    description: Publish live match state (feed-provider side).
+  - scope: matchstateapi/schedule.read
+    description: Read the fixture coverage schedule (Schedule API GET).
+  - scope: matchstateapi/schedule.post
+    description: Publish fixture coverage schedule entries (feed-provider side).
+  - scope: matchstateapi/granularity.read
+    description: Read match-state source-id granularity settings.
+  - scope: matchstateapi/granularity.post
+    description: Write match-state source-id granularity settings.
+  - scope: matchstateapi/sport.10
+    description: Per-sport entitlement — sport id 10 is Football (soccer). Sport entitlements are granted individually.
+  - scope: matchstateapi/source.livestats
+    description: Per-source entitlement for the LiveStats data source.
+  - scope: matchstateapi/source.isd
+    description: Per-source entitlement for the ISD data source.
+observations:
+  - >-
+    Entitlement is two-dimensional: a client is granted resource scopes (live/schedule/granularity,
+    read vs post) AND scalar entitlement scopes for each sport (`sport.<id>`) and each data source
+    (`source.<name>`). A sportsbook licensed for Football but not American Football carries
+    `sport.10` and not `sport.17`.
+  - >-
+    Scopes are not requested per-call — the client_credentials grant returns whatever the issued
+    client is entitled to. There is no consent screen and no scope negotiation.

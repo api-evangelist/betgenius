@@ -1,0 +1,148 @@
+swagger: '2.0'
+info:
+  version: V2
+  title: An API for booking fixtures
+host: dataservices.betgenius.com
+basePath: /BookingSystem
+schemes:
+- https
+paths:
+  /api/v2/booking/Book:
+    post:
+      tags:
+      - BookingV2
+      summary: Book a fixture
+      operationId: BookingV2_Book
+      consumes: []
+      produces:
+      - application/json
+      - text/json
+      - application/xml
+      - text/xml
+      parameters:
+      - name: fixtureId
+        in: query
+        description: ''
+        required: true
+        type: integer
+        format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+  /api/v2/booking/UnBook:
+    post:
+      tags:
+      - BookingV2
+      summary: Un-book a fixture
+      operationId: BookingV2_UnBook
+      consumes: []
+      produces:
+      - application/json
+      - text/json
+      - application/xml
+      - text/xml
+      parameters:
+      - name: fixtureId
+        in: query
+        description: ''
+        required: true
+        type: integer
+        format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+  /api/v2/booking/Fixtures:
+    get:
+      tags:
+      - BookingV2
+      summary: Request a list of upcoming fixtures
+      operationId: BookingV2_Fixtures
+      consumes: []
+      produces:
+      - application/json
+      - text/json
+      - application/xml
+      - text/xml
+      parameters:
+      - name: from
+        in: query
+        required: false
+        type: string
+        format: date-time
+      - name: until
+        in: query
+        required: false
+        type: string
+        format: date-time
+      - name: sportId
+        in: query
+        required: false
+        type: integer
+        format: int32
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Fixture'
+definitions:
+  Fixture:
+    type: object
+    properties:
+      FixtureId:
+        format: int32
+        type: integer
+      CompetitionId:
+        format: int32
+        type: integer
+      CompetitionName:
+        type: string
+      SportId:
+        format: int32
+        type: integer
+      Name:
+        type: string
+      Date:
+        format: date-time
+        type: string
+      CustomerFixtureId:
+        type: string
+      IsBooked:
+        type: boolean
+      AvailableFeeds:
+        type: array
+        items:
+          $ref: '#/definitions/Feed'
+      ExternalIds:
+        type: array
+        items:
+          $ref: '#/definitions/ExternalId'
+  Feed:
+    type: object
+    properties:
+      Name:
+        type: string
+      Type:
+        type: string
+      IsLicensed:
+        type: boolean
+      Metadata:
+        type: object
+        additionalProperties:
+          type: string
+  ExternalId:
+    type: object
+    properties:
+      Source:
+        type: string
+      Id:
+        type: string
+securityDefinitions:
+  basic:
+    type: basic
+    description: Basic HTTP Authentication
