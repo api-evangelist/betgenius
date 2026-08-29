@@ -138,6 +138,9 @@ apis:
   - type: APIReference
     url: https://explorer.api.geniussports.com/Video/v3/PRODPRM/public/
 common:
+  - type: CapabilityMap
+    url: capabilities/betgenius-capability-edges.yml
+    name: BetGenius Business Capability Map
   - type: Overlay
     url: overlays/betgenius-booking-v2-overlay.yaml
   - type: AgentSkill

@@ -1,0 +1,27 @@
+slug: betgenius
+provider: BetGenius
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Media, Entertainment & Telecom Content
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: fixtures
+  spec_file: betgenius-fixtures-api-openapi.yml
+  capability_id: BC-3740.20
+  capability_id_l1: BC-3740
+  capability_name: OTT & Streaming Delivery
+  confidence: 0.85
+  evidence: '''The video streaming API ... Retrieve the streaming parameters for a particular fixture'';
+    POST /fixtures/{id}/live-streams/{streamId}/deliveries/hls/{deliveryId} createHLSStream; createHlsVod;
+    schemas LiveStream, VodStream, DASHDelivery'
+  reason: Operations create HLS/DASH/SRT live and VOD stream deliveries for sports fixtures and expose
+    the streaming schedule and parameters — packaging and origin delivery of live and on-demand streams,
+    i.e. OTT & streaming delivery.
