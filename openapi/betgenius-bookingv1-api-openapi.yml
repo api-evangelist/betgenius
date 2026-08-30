@@ -1,0 +1,172 @@
+openapi: 3.2.0
+info:
+  version: V1
+  title: An API for booking fixtures Booking V1 API
+servers:
+- url: https://dataservices.betgenius.com/BookingSystem
+tags:
+- name: BookingV1
+paths:
+  /api/booking/Book:
+    post:
+      tags:
+      - BookingV1
+      summary: Book a fixture
+      operationId: BookingV1_Book
+      parameters:
+      - name: fixtureId
+        in: query
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+            text/json:
+              schema:
+                type: object
+            application/xml:
+              schema:
+                type: object
+            text/xml:
+              schema:
+                type: object
+  /api/booking/UnBook:
+    post:
+      tags:
+      - BookingV1
+      summary: Un-book a fixture
+      operationId: BookingV1_UnBook
+      parameters:
+      - name: fixtureId
+        in: query
+        description: ''
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+            text/json:
+              schema:
+                type: object
+            application/xml:
+              schema:
+                type: object
+            text/xml:
+              schema:
+                type: object
+  /api/booking/Fixtures:
+    get:
+      tags:
+      - BookingV1
+      summary: Request a list of upcoming fixtures
+      operationId: BookingV1_Fixtures
+      parameters:
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: until
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: sportId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fixture'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fixture'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fixture'
+            text/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fixture'
+components:
+  schemas:
+    Feed:
+      type: object
+      properties:
+        Name:
+          type: string
+        Type:
+          type: string
+        IsLicensed:
+          type: boolean
+    ExternalId:
+      type: object
+      properties:
+        Source:
+          type: string
+        Id:
+          type: string
+    Fixture:
+      type: object
+      properties:
+        CompetitionId:
+          format: int32
+          type: integer
+        CompetitionName:
+          type: string
+        CustomerFixtureId:
+          type: string
+        Date:
+          format: date-time
+          type: string
+        FixtureId:
+          format: int32
+          type: integer
+        IsBooked:
+          type: boolean
+        Name:
+          type: string
+        SportId:
+          format: int32
+          type: integer
+        AvailableFeeds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feed'
+        ExternalIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExternalId'
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+      description: Basic HTTP Authentication
