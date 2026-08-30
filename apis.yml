@@ -107,6 +107,8 @@ apis:
   humanURL: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
   baseURL: https://dataservices.betgenius.com/BookingSystem
   tags:
+  - Fixtures
+  tags_raw:
   - fixtures
   properties:
   - type: OpenAPI
@@ -125,6 +127,8 @@ apis:
   humanURL: https://geniussports.atlassian.net/wiki/spaces/BID/pages/36084721/Booking+API
   baseURL: https://dataservices.betgenius.com/BookingSystem
   tags:
+  - Regions
+  tags_raw:
   - regions
   properties:
   - type: OpenAPI
