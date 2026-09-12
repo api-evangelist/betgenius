@@ -1,0 +1,30 @@
+{
+  "provider": "betgenius",
+  "sources": [
+    "betgenius-booking-v1-openapi.yml",
+    "betgenius-booking-v2-openapi.yml",
+    "betgenius-video-v3-openapi.yml"
+  ],
+  "outputs": [
+    "betgenius-bookingv1-api-openapi.yml",
+    "betgenius-bookingv2-api-openapi.yml",
+    "betgenius-fixtures-api-openapi.yml",
+    "betgenius-regions-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/betgenius-booking-v1-openapi.yml",
+    "archived openapi/betgenius-booking-v2-openapi.yml",
+    "archived openapi/betgenius-video-v3-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "betgenius-booking-v1-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "betgenius-booking-v1-openapi.yml: declared missing tag: BookingV1",
+    "betgenius-booking-v2-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "betgenius-booking-v2-openapi.yml: declared missing tag: BookingV2",
+    "betgenius-video-v3-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "apis.yml register: written (+4 apis, 4 total)"
+  ],
+  "skipped": []
+}

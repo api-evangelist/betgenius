@@ -250,3 +250,5 @@ x-enrichment:
   artifacts_added: 30
   pass: local-v1
 
+x-parent: genius-sports
+x-relationship: product
