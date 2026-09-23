@@ -118,22 +118,6 @@ paths:
                   $ref: '#/components/schemas/Fixture'
 components:
   schemas:
-    Feed:
-      type: object
-      properties:
-        Name:
-          type: string
-        Type:
-          type: string
-        IsLicensed:
-          type: boolean
-    ExternalId:
-      type: object
-      properties:
-        Source:
-          type: string
-        Id:
-          type: string
     Fixture:
       type: object
       properties:
@@ -165,6 +149,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExternalId'
+    Feed:
+      type: object
+      properties:
+        Name:
+          type: string
+        Type:
+          type: string
+        IsLicensed:
+          type: boolean
+    ExternalId:
+      type: object
+      properties:
+        Source:
+          type: string
+        Id:
+          type: string
   securitySchemes:
     basic:
       type: http

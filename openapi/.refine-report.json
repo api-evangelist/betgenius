@@ -1,9 +1,9 @@
 {
   "provider": "betgenius",
   "sources": [
-    "betgenius-booking-v1-openapi.yml",
-    "betgenius-booking-v2-openapi.yml",
-    "betgenius-video-v3-openapi.yml"
+    "_original/betgenius-booking-v1-openapi-original.json",
+    "_original/betgenius-booking-v2-openapi-original.json",
+    "_original/betgenius-video-v3-openapi-original.json"
   ],
   "outputs": [
     "betgenius-bookingv1-api-openapi.yml",
@@ -11,20 +11,26 @@
     "betgenius-fixtures-api-openapi.yml",
     "betgenius-regions-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/betgenius-booking-v1-openapi.yml",
-    "archived openapi/betgenius-booking-v2-openapi.yml",
-    "archived openapi/betgenius-video-v3-openapi.yml"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
-    "betgenius-booking-v1-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
-    "betgenius-booking-v1-openapi.yml: declared missing tag: BookingV1",
-    "betgenius-booking-v2-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
-    "betgenius-booking-v2-openapi.yml: declared missing tag: BookingV2",
-    "betgenius-video-v3-openapi.yml: upgraded swagger 2.0 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+4 apis, 4 total)"
+    "3 archived document(s) dropped as subsets of other archived documents",
+    "sourced from openapi/_original/ (3 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "betgenius-booking-v1-openapi-original.json: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "betgenius-booking-v1-openapi-original.json: declared missing tag: BookingV1",
+    "betgenius-booking-v2-openapi-original.json: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "betgenius-booking-v2-openapi-original.json: declared missing tag: BookingV2",
+    "betgenius-video-v3-openapi-original.json: upgraded swagger 2.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "_original/betgenius-video-v3-openapi.yml: archived document superseded by a larger archived document",
+    "_original/betgenius-booking-v2-openapi.yml: archived document superseded by a larger archived document",
+    "_original/betgenius-booking-v1-openapi.yml: archived document superseded by a larger archived document",
+    "betgenius-bookingv1-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "betgenius-bookingv2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "betgenius-fixtures-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "betgenius-regions-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
