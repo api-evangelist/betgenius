@@ -149,6 +149,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExternalId'
+    ExternalId:
+      type: object
+      properties:
+        Source:
+          type: string
+        Id:
+          type: string
     Feed:
       type: object
       properties:
@@ -162,13 +169,6 @@ components:
           type: object
           additionalProperties:
             type: string
-    ExternalId:
-      type: object
-      properties:
-        Source:
-          type: string
-        Id:
-          type: string
   securitySchemes:
     basic:
       type: http

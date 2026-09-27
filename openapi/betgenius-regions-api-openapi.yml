@@ -84,6 +84,40 @@ components:
         continent:
           type: string
           description: The region continent
+    Continent:
+      type: object
+      required:
+      - code
+      - name
+      properties:
+        code:
+          type: string
+          description: The continent code
+        name:
+          type: string
+          description: The continent name
+    RegionsResponse:
+      type: object
+      required:
+      - continents
+      - dmas
+      - regions
+      properties:
+        continents:
+          type: array
+          description: The list of continents
+          items:
+            $ref: '#/components/schemas/Continent'
+        regions:
+          type: array
+          description: The list of regions.
+          items:
+            $ref: '#/components/schemas/Region'
+        dmas:
+          type: array
+          description: The list of DMAs.
+          items:
+            $ref: '#/components/schemas/Dma'
     Problem:
       type: object
       properties:
@@ -132,18 +166,6 @@ components:
 
             '
       description: A Problem object according to https://datatracker.ietf.org/doc/html/rfc7807
-    Continent:
-      type: object
-      required:
-      - code
-      - name
-      properties:
-        code:
-          type: string
-          description: The continent code
-        name:
-          type: string
-          description: The continent name
     Dma:
       type: object
       required:
@@ -164,28 +186,6 @@ components:
           description: The regions located in the DMA
           items:
             type: string
-    RegionsResponse:
-      type: object
-      required:
-      - continents
-      - dmas
-      - regions
-      properties:
-        continents:
-          type: array
-          description: The list of continents
-          items:
-            $ref: '#/components/schemas/Continent'
-        regions:
-          type: array
-          description: The list of regions.
-          items:
-            $ref: '#/components/schemas/Region'
-        dmas:
-          type: array
-          description: The list of DMAs.
-          items:
-            $ref: '#/components/schemas/Dma'
   securitySchemes:
     CognitoPool:
       type: apiKey

@@ -521,48 +521,55 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    FixturePhase:
-      type: string
-      description: 'The state of the fixture, it must be one of: {PRE_MATCH, IN_PLAY, RESULTED}.'
-    FixturesPage:
+    SRTStreamRequest:
       type: object
-      required:
-      - data
-      - paging
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Fixture'
-        paging:
-          $ref: '#/components/schemas/Paging'
-    DASHDelivery:
+    HLSDelivery:
       type: object
       required:
       - id
       properties:
         id:
           type: string
-    HLSStreamResponse:
+    Device:
+      type: string
+      description: 'The type of device making a request to play the content. It must be one of: {MOBILE, TABLET, DESKTOP, OTT}.'
+    DASHStreamRequest:
       type: object
       required:
-      - url
+      - device
+      - endUserSessionId
       properties:
-        expiresAt:
+        endUserSessionId:
           type: string
-          format: date-time
-          description: The expiration date of this token, expressed in UTC.
-        url:
+          description: Not personally identifiable ID, depicting a single end user session on the customer side. Must be consistent for the length of a single end user (the viewer of the content), meaning each user viewing the content should have a single uuid for the duration of their being logged in on the customer side
+          maxLength: 1024
+        device:
+          $ref: '#/components/schemas/Device'
+        region:
           type: string
-          description: The live stream playback URL.
-        token:
+          description: The geographic region from where the end-user is attemping to receive the video stream. This value must correspond to one of the regions returned by the `/regions` endpoint.
+    Paging:
+      type: object
+      required:
+      - cursors
+      properties:
+        cursors:
+          type: object
+          description: Contains the pointers for the first and last items of this page.
+          properties:
+            after:
+              type: string
+              description: This is the cursor that points to the end of the page of data that has been returned.
+            before:
+              type: string
+              description: This is the cursor that points to the start of the page of data that has been returned.
+        previous:
           type: string
-          description: Token data to add to the user's session.
-        drm:
-          $ref: '#/components/schemas/DRM'
-    BookingStatus:
-      type: string
-      description: 'The booking status of a given fixture. It must be one of: {BOOKED, UNBOOKED}'
+          description: The API endpoint that will return the previous page of data. If not included, this is the first page of data.
+        next:
+          type: string
+          description: The API endpoint that will return the next page of data. If not included, this is the last page of data.
+      description: Paging structure.
     Fixture:
       type: object
       required:
@@ -614,6 +621,45 @@ components:
           items:
             $ref: '#/components/schemas/VodStream'
       description: A live stream encapsulates video streaming information for a given GeniusSports fixture. It contains basic information such as Genius fixture ID, team names and sate, as well as a list of available *Stream* objects to get video from.
+    DASHDelivery:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+    DmaPermission:
+      type: object
+      required:
+      - dma
+      properties:
+        dma:
+          type: string
+          description: The id of a Designated Market Area (DMA)
+      description: Defines a Designated Market Area (DMA) Permission only in USA
+    FixturePhase:
+      type: string
+      description: 'The state of the fixture, it must be one of: {PRE_MATCH, IN_PLAY, RESULTED}.'
+    BookingStatus:
+      type: string
+      description: 'The booking status of a given fixture. It must be one of: {BOOKED, UNBOOKED}'
+    DASHStreamResponse:
+      type: object
+      required:
+      - url
+      properties:
+        expiresAt:
+          type: string
+          format: date-time
+          description: The expiration date of this token, expressed in UTC.
+        url:
+          type: string
+          description: The live stream playback URL.
+        token:
+          type: string
+          description: Token data to add to the user's session.
+        drm:
+          $ref: '#/components/schemas/DRM'
     SRTDelivery:
       type: object
       required:
@@ -621,28 +667,30 @@ components:
       properties:
         id:
           type: string
-    HLSDelivery:
+    DRM:
+      type: object
+      properties:
+        widevine:
+          type: string
+          description: The Widevine URL.
+        playready:
+          type: string
+          description: The Playready URL.
+        fairplay:
+          type: string
+          description: The Fairplay URL.
+        fairplayCertificate:
+          type: string
+          description: The Fairplay certificate URL.
+      description: DRM configuration.
+    SRTStreamResponse:
       type: object
       required:
-      - id
+      - url
       properties:
-        id:
+        url:
           type: string
-    HLSStreamRequest:
-      type: object
-      required:
-      - device
-      - endUserSessionId
-      properties:
-        endUserSessionId:
-          type: string
-          description: Not personally identifiable ID, depicting a single end user session on the customer side. Must be consistent for the length of a single end user (the viewer of the content), meaning each user viewing the content should have a single ID for the duration of their being logged in on the customer side.
-          maxLength: 1024
-        device:
-          $ref: '#/components/schemas/Device'
-        region:
-          type: string
-          description: The geographic region from where the end-user is attemping to receive the video stream. This value must correspond to one of the regions returned by the `/regions` endpoint.
+          description: The live stream SRT ingest URL.
     VodStream:
       type: object
       required:
@@ -680,149 +728,6 @@ components:
           - dash
           - hls
       description: List of deliveries that contains the VOD URLs of the requested stream
-    Permission:
-      type: object
-      required:
-      - device
-      - maxPlayerSizePercentage
-      - region
-      properties:
-        device:
-          $ref: '#/components/schemas/Device'
-        maxPlayerSizePercentage:
-          type: integer
-          format: int32
-          description: The maximum player size, in percentage units, along the screen's horizontal axis.
-          minimum: 0.0
-          maximum: 100.0
-        region:
-          type: string
-          description: The geographic region where this permission applies. Each coutry is identified by its alpha-2 code.
-      description: Defines a permission for streaming content.
-    SRTStreamRequest:
-      type: object
-    SRTStreamResponse:
-      type: object
-      required:
-      - url
-      properties:
-        url:
-          type: string
-          description: The live stream SRT ingest URL.
-    DASHStreamRequest:
-      type: object
-      required:
-      - device
-      - endUserSessionId
-      properties:
-        endUserSessionId:
-          type: string
-          description: Not personally identifiable ID, depicting a single end user session on the customer side. Must be consistent for the length of a single end user (the viewer of the content), meaning each user viewing the content should have a single uuid for the duration of their being logged in on the customer side
-          maxLength: 1024
-        device:
-          $ref: '#/components/schemas/Device'
-        region:
-          type: string
-          description: The geographic region from where the end-user is attemping to receive the video stream. This value must correspond to one of the regions returned by the `/regions` endpoint.
-    DmaPermission:
-      type: object
-      required:
-      - dma
-      properties:
-        dma:
-          type: string
-          description: The id of a Designated Market Area (DMA)
-      description: Defines a Designated Market Area (DMA) Permission only in USA
-    Paging:
-      type: object
-      required:
-      - cursors
-      properties:
-        cursors:
-          type: object
-          description: Contains the pointers for the first and last items of this page.
-          properties:
-            after:
-              type: string
-              description: This is the cursor that points to the end of the page of data that has been returned.
-            before:
-              type: string
-              description: This is the cursor that points to the start of the page of data that has been returned.
-        previous:
-          type: string
-          description: The API endpoint that will return the previous page of data. If not included, this is the first page of data.
-        next:
-          type: string
-          description: The API endpoint that will return the next page of data. If not included, this is the last page of data.
-      description: Paging structure.
-    Device:
-      type: string
-      description: 'The type of device making a request to play the content. It must be one of: {MOBILE, TABLET, DESKTOP, OTT}.'
-    LiveStream:
-      type: object
-      required:
-      - deliveries
-      - dmas
-      - id
-      - permissions
-      properties:
-        id:
-          type: string
-          description: The ID of this stream.
-        permissions:
-          type: array
-          description: Permissions granted over this live-stream.
-          items:
-            $ref: '#/components/schemas/Permission'
-        dmas:
-          type: array
-          description: Allowed DMAs over this live-stream.
-          items:
-            $ref: '#/components/schemas/DmaPermission'
-        deliveries:
-          type: object
-          description: Contains the deliveries for each transport protocol supported by this stream.
-          properties:
-            hls:
-              type: array
-              items:
-                $ref: '#/components/schemas/HLSDelivery'
-            dash:
-              type: array
-              items:
-                $ref: '#/components/schemas/DASHDelivery'
-            srt:
-              type: array
-              description: 'SRT deliveries for this live-stream. This field is optional: when the stream has no
-
-                SRT deliveries it is omitted from the response. When present, it is always an array
-
-                (possibly empty). The field is never returned as `null`.
-
-                '
-              items:
-                $ref: '#/components/schemas/SRTDelivery'
-          required:
-          - dash
-          - hls
-      description: TODO
-    DASHStreamResponse:
-      type: object
-      required:
-      - url
-      properties:
-        expiresAt:
-          type: string
-          format: date-time
-          description: The expiration date of this token, expressed in UTC.
-        url:
-          type: string
-          description: The live stream playback URL.
-        token:
-          type: string
-          description: Token data to add to the user's session.
-        drm:
-          $ref: '#/components/schemas/DRM'
     Problem:
       type: object
       properties:
@@ -871,22 +776,117 @@ components:
 
             '
       description: A Problem object according to https://datatracker.ietf.org/doc/html/rfc7807
-    DRM:
+    HLSStreamResponse:
       type: object
+      required:
+      - url
       properties:
-        widevine:
+        expiresAt:
           type: string
-          description: The Widevine URL.
-        playready:
+          format: date-time
+          description: The expiration date of this token, expressed in UTC.
+        url:
           type: string
-          description: The Playready URL.
-        fairplay:
+          description: The live stream playback URL.
+        token:
           type: string
-          description: The Fairplay URL.
-        fairplayCertificate:
+          description: Token data to add to the user's session.
+        drm:
+          $ref: '#/components/schemas/DRM'
+    LiveStream:
+      type: object
+      required:
+      - deliveries
+      - dmas
+      - id
+      - permissions
+      properties:
+        id:
           type: string
-          description: The Fairplay certificate URL.
-      description: DRM configuration.
+          description: The ID of this stream.
+        permissions:
+          type: array
+          description: Permissions granted over this live-stream.
+          items:
+            $ref: '#/components/schemas/Permission'
+        dmas:
+          type: array
+          description: Allowed DMAs over this live-stream.
+          items:
+            $ref: '#/components/schemas/DmaPermission'
+        deliveries:
+          type: object
+          description: Contains the deliveries for each transport protocol supported by this stream.
+          properties:
+            hls:
+              type: array
+              items:
+                $ref: '#/components/schemas/HLSDelivery'
+            dash:
+              type: array
+              items:
+                $ref: '#/components/schemas/DASHDelivery'
+            srt:
+              type: array
+              description: 'SRT deliveries for this live-stream. This field is optional: when the stream has no
+
+                SRT deliveries it is omitted from the response. When present, it is always an array
+
+                (possibly empty). The field is never returned as `null`.
+
+                '
+              items:
+                $ref: '#/components/schemas/SRTDelivery'
+          required:
+          - dash
+          - hls
+      description: TODO
+    FixturesPage:
+      type: object
+      required:
+      - data
+      - paging
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fixture'
+        paging:
+          $ref: '#/components/schemas/Paging'
+    HLSStreamRequest:
+      type: object
+      required:
+      - device
+      - endUserSessionId
+      properties:
+        endUserSessionId:
+          type: string
+          description: Not personally identifiable ID, depicting a single end user session on the customer side. Must be consistent for the length of a single end user (the viewer of the content), meaning each user viewing the content should have a single ID for the duration of their being logged in on the customer side.
+          maxLength: 1024
+        device:
+          $ref: '#/components/schemas/Device'
+        region:
+          type: string
+          description: The geographic region from where the end-user is attemping to receive the video stream. This value must correspond to one of the regions returned by the `/regions` endpoint.
+    Permission:
+      type: object
+      required:
+      - device
+      - maxPlayerSizePercentage
+      - region
+      properties:
+        device:
+          $ref: '#/components/schemas/Device'
+        maxPlayerSizePercentage:
+          type: integer
+          format: int32
+          description: The maximum player size, in percentage units, along the screen's horizontal axis.
+          minimum: 0.0
+          maximum: 100.0
+        region:
+          type: string
+          description: The geographic region where this permission applies. Each coutry is identified by its alpha-2 code.
+      description: Defines a permission for streaming content.
   securitySchemes:
     CognitoPool:
       type: apiKey
