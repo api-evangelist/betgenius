@@ -68,34 +68,6 @@ paths:
       x-summary-source: derived
 components:
   schemas:
-    Region:
-      type: object
-      required:
-      - code
-      - continent
-      - name
-      properties:
-        code:
-          type: string
-          description: The region code
-        name:
-          type: string
-          description: The region name
-        continent:
-          type: string
-          description: The region continent
-    Continent:
-      type: object
-      required:
-      - code
-      - name
-      properties:
-        code:
-          type: string
-          description: The continent code
-        name:
-          type: string
-          description: The continent name
     RegionsResponse:
       type: object
       required:
@@ -118,6 +90,54 @@ components:
           description: The list of DMAs.
           items:
             $ref: '#/components/schemas/Dma'
+    Continent:
+      type: object
+      required:
+      - code
+      - name
+      properties:
+        code:
+          type: string
+          description: The continent code
+        name:
+          type: string
+          description: The continent name
+    Region:
+      type: object
+      required:
+      - code
+      - continent
+      - name
+      properties:
+        code:
+          type: string
+          description: The region code
+        name:
+          type: string
+          description: The region name
+        continent:
+          type: string
+          description: The region continent
+    Dma:
+      type: object
+      required:
+      - cities
+      - code
+      - regions
+      properties:
+        code:
+          type: string
+          description: The code of the Designated Market Area (DMA)
+        cities:
+          type: array
+          description: The cities located in the DMA
+          items:
+            type: string
+        regions:
+          type: array
+          description: The regions located in the DMA
+          items:
+            type: string
     Problem:
       type: object
       properties:
@@ -166,26 +186,6 @@ components:
 
             '
       description: A Problem object according to https://datatracker.ietf.org/doc/html/rfc7807
-    Dma:
-      type: object
-      required:
-      - cities
-      - code
-      - regions
-      properties:
-        code:
-          type: string
-          description: The code of the Designated Market Area (DMA)
-        cities:
-          type: array
-          description: The cities located in the DMA
-          items:
-            type: string
-        regions:
-          type: array
-          description: The regions located in the DMA
-          items:
-            type: string
   securitySchemes:
     CognitoPool:
       type: apiKey
