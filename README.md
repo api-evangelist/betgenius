@@ -1,4 +1,4 @@
-# betgenius
+# BetGenius
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,4 +64,141 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-BetGenius — Genius Sports' sportsbook operator platform (data, trading, BetVision, marketing)
+BetGenius is the sportsbook-operator brand of Genius Sports, a London- and New York-listed sports data, technology, and commercial-services group. Founded in 2000 and operating as a Genius Sports business unit since the 2015 corporate consolidation, BetGenius provides licensed sportsbooks with an end-to-end B2B platform spanning official data and odds feeds, fully managed trading and risk management (Genius Trading Services), low-latency live video and interactive in-play streaming (BetVision and Genius Live Player), BetBuilder same-game-parlay pricing, ScoreCentre widgets, acquisition and retention marketing (FANHub, media buying, dynamic creative optimisation), and back-office sportsbook platform services (used by operators such as OPAP, 888, Betway, and Hard Rock Bet). Genius Sports sources official data from 400+ league partners — including the NFL, English Premier League, Serie A, EuroLeague, and PGA Tour — and serves 300+ licensed sportsbooks across regulated markets worldwide. BetGenius itself does not expose a self-service developer portal; its APIs (Booking API, Fixtures API v2, Matching API v2, Warehouse REST/Streaming/Publish APIs, LiveStats In-Arena and Licensing APIs, BetVision and Live Player integration SDKs) are documented at developer.geniussports.com and delivered to contracted operators via UAT and production environments using API-key authentication.
+
+**Areas:** Sportsbook · Sports Betting · Sports Data · Odds Feeds · Trading Services · Risk Management · Live Streaming · In-Play Betting · BetBuilder · Player Engagement · Marketing Technology · Gambling
+
+## BetGenius on APIs.io
+
+Everything profiled for BetGenius is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/betgenius/](https://apis.io/providers/betgenius/)** — or go straight to one of the APIs or properties below.
+
+### APIs (4)
+
+- [BetGenius Booking V1 API](https://apis.io/apis/betgenius/betgenius-bookingv1-api/) — The BookingV1 API from BetGenius — 3 operation(s) for bookingv1.
+- [BetGenius Booking V2 API](https://apis.io/apis/betgenius/betgenius-bookingv2-api/) — The BookingV2 API from BetGenius — 3 operation(s) for bookingv2.
+- [BetGenius Fixtures API](https://apis.io/apis/betgenius/betgenius-fixtures-api/) — The fixtures API
+- [BetGenius Regions API](https://apis.io/apis/betgenius/betgenius-regions-api/) — The regions API
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Betgenius Event Surface](https://apis.io/asyncapis/betgenius/betgenius-event-surface/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [betgenius](https://apis.io/servers/betgenius/betgenius/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Betgenius Agentic Access](https://apis.io/agentic-access/betgenius/betgenius-agentic-access/)
+
+#### Overlays (3)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Betgenius Booking V1 Overlay](https://apis.io/overlays/betgenius/betgenius-booking-v1-overlay/)
+- [Betgenius Booking V2 Overlay](https://apis.io/overlays/betgenius/betgenius-booking-v2-overlay/)
+- [Betgenius Video V3 Overlay](https://apis.io/overlays/betgenius/betgenius-video-v3-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Betgenius Authentication](https://apis.io/security/betgenius/betgenius-authentication/)
+- [Betgenius Domain Security](https://apis.io/security/betgenius/betgenius-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Betgenius Scopes](https://apis.io/scopes/betgenius/betgenius-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Betgenius Plans Pricing](https://apis.io/plans/betgenius/betgenius-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Betgenius Rate Limits](https://apis.io/rate-limits/betgenius/betgenius-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.geniussports.com/bet/)
+- [Documentation](https://geniussports.atlassian.net/wiki/spaces/BID)
+- [Getting started](https://dap-docs.betstream.betgenius.com/)
+- [API reference](https://dataservices.betgenius.com/BookingSystem/swagger/ui/index)
+- [Support](https://geniussports.atlassian.net/wiki/spaces/BID/pages/6097764412/Support+User+Guides+and+Info)
+- [Blog](https://www.geniussports.com/content-hub/)
+- [Privacy policy](https://www.geniussports.com/policies/privacy-policy/)
+- [GitHub](https://github.com/genius-sports)
+- [Status](https://status.geniussports.com)
+
+## API Evangelist rating
+
+**Kin Score 45.1** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 72.3 |
+| Contract quality | 51.5 |
+| Contract governance | 4.5 |
+| Operational transparency | 57.9 |
+| Developer ergonomics | 66.1 |
+| Access clarity | 10.5 |
+
+**Agent readiness 31.1** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 30.4** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/betgenius/](https://apis.io/providers/betgenius/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for BetGenius: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/betgenius/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
